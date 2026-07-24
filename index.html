@@ -603,7 +603,7 @@
                     <button
                       class="drag-handle"
                       type="button"
-                      draggable="${keyword ? "false" : "true"}"
+                      draggable="false"
                       data-id="${item.id}"
                       title="拖曳排序或移動分類"
                       aria-label="拖曳「${escapeHtml(item.title)}」調整排序或分類"
@@ -1077,53 +1077,9 @@
         showToast("句子已刪除");
       });
 
-      list.addEventListener("dragstart", event => {
-        const handle = event.target.closest(".drag-handle");
-        if (!handle) return;
-        if (searchInput.value.trim()) {
-          event.preventDefault();
-          showToast("請先清除搜尋再拖曳");
-          return;
-        }
-        draggingId = Number(handle.dataset.id);
-        const card = handle.closest(".card");
-        card?.classList.add("dragging");
-        event.dataTransfer.effectAllowed = "move";
-        event.dataTransfer.setData("text/plain", String(draggingId));
-        if (card) event.dataTransfer.setDragImage(card, 24, 24);
-      });
-
-      list.addEventListener("dragover", event => {
-        if (draggingId === null) return;
-        const group = event.target.closest("[data-drop-category]");
-        if (!group) return;
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-        setDropTarget(group.dataset.dropCategory);
-      });
-
-      list.addEventListener("drop", event => {
-        if (draggingId === null) return;
-        const group = event.target.closest("[data-drop-category]");
-        if (!group) return;
-        event.preventDefault();
-        const card = event.target.closest("[data-sentence-id]");
-        const id = Number(event.dataTransfer.getData("text/plain") || draggingId);
-        const rect = card && card.getBoundingClientRect();
-        moveSentence(
-          id,
-          group.dataset.dropCategory,
-          card ? Number(card.dataset.sentenceId) : null,
-          Boolean(card && event.clientY > rect.top + rect.height / 2)
-        );
-        resetDragging();
-      });
-
-      list.addEventListener("dragend", resetDragging);
-
       list.addEventListener("pointerdown", event => {
         const handle = event.target.closest(".drag-handle");
-        if (!handle || event.pointerType === "mouse") return;
+        if (!handle) return;
         if (searchInput.value.trim()) {
           showToast("請先清除搜尋再拖曳");
           return;
@@ -1141,6 +1097,7 @@
 
       list.addEventListener("pointermove", event => {
         if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+        event.preventDefault();
         if (Math.hypot(
           event.clientX - pointerDrag.startX,
           event.clientY - pointerDrag.startY
@@ -1158,6 +1115,7 @@
 
       list.addEventListener("pointerup", event => {
         if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+        event.preventDefault();
         if (pointerDrag.moved) {
           const target = getDropTarget(event.clientX, event.clientY);
           if (target) {
