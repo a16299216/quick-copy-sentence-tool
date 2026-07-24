@@ -103,7 +103,7 @@
       background: #10182b;
     }
 
-    .search:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,108,255,.16); }
+    .search:focus, .title-input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,108,255,.16); }
 
     .count {
       display: flex;
@@ -152,7 +152,9 @@
       background: #10182b;
     }
     .thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .sentence { margin: 0; font-size: 17px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .sentence-copy { min-width: 0; }
+    .sentence-title { margin: 0 0 6px; font-size: 18px; line-height: 1.35; }
+    .sentence { margin: 0; color: #dbe3f8; font-size: 16px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
 
     .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; align-items: center; }
     .icon-btn {
@@ -207,16 +209,20 @@
     .modal-body { padding: 24px; }
     .modal-body h2 { margin: 0 0 6px; }
     .modal-body p { margin: 0 0 18px; color: var(--muted); }
+    .title-input,
     textarea {
       width: 100%;
-      min-height: 150px;
-      resize: vertical;
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 14px;
       color: var(--text);
       outline: none;
       background: #0e1628;
+    }
+    .title-input { margin-bottom: 14px; }
+    textarea {
+      min-height: 150px;
+      resize: vertical;
       line-height: 1.6;
     }
     .image-picker {
@@ -287,6 +293,7 @@
       .header-actions button, .header-actions label { flex: 1; justify-content: center; text-align: center; }
       .card { grid-template-columns: auto minmax(0, 1fr); gap: 12px; }
       .thumb { grid-column: 1 / -1; width: 100%; height: 150px; }
+      .sentence-copy { grid-column: 2; }
       .actions { grid-column: 1 / -1; }
       .actions { justify-content: flex-end; }
       .copy { flex: 1; }
@@ -311,7 +318,7 @@
     </header>
 
     <section class="toolbar" aria-label="工具列">
-      <input class="search" id="searchInput" type="search" placeholder="搜尋句子…" autocomplete="off">
+      <input class="search" id="searchInput" type="search" placeholder="搜尋標題或句子內容…" autocomplete="off">
       <div class="count" id="countText">0 句</div>
     </section>
 
@@ -321,7 +328,8 @@
   <dialog id="editorDialog">
     <form class="modal-body" id="editorForm" method="dialog">
       <h2 id="dialogTitle">新增句子</h2>
-      <p>輸入句子並選擇圖片，儲存後就會逐條顯示在首頁。</p>
+      <p>設定標題和句子，圖片可自由附加或移除。</p>
+      <input class="title-input" id="titleInput" type="text" placeholder="標題，例如：付款完成通知" required>
       <textarea id="sentenceInput" placeholder="例如：您好，謝謝您的詢問，我現在為您確認。" required></textarea>
       <section class="image-picker" aria-label="附加圖片">
         <p class="image-picker-title">附加圖片（選填）</p>
@@ -355,9 +363,9 @@
 
       const STORAGE_KEY = "quick-copy-sentences-v1";
       const starterSentences = [
-        "您好，謝謝您的詢問，我現在為您確認。",
-        "已收到您的訊息，我們會盡快為您處理。",
-        "感謝您的耐心等候，如有最新進度會立即通知您。"
+        { title: "一般詢問回覆", text: "您好，謝謝您的詢問，我現在為您確認。" },
+        { title: "已收到訊息", text: "已收到您的訊息，我們會盡快為您處理。" },
+        { title: "耐心等候通知", text: "感謝您的耐心等候，如有最新進度會立即通知您。" }
       ];
 
       const list = document.getElementById("sentenceList");
@@ -369,6 +377,7 @@
       const dialog = document.getElementById("editorDialog");
       const form = document.getElementById("editorForm");
       const dialogTitle = document.getElementById("dialogTitle");
+      const titleInput = document.getElementById("titleInput");
       const sentenceInput = document.getElementById("sentenceInput");
       const imageInput = document.getElementById("imageInput");
       const imagePreview = document.getElementById("imagePreview");
@@ -382,12 +391,39 @@
       let toastTimer;
       let sentences = loadSentences();
 
+      function fallbackTitle(text, index = 0) {
+        const normalized = String(text || "").trim().replace(/\s+/g, " ");
+        if (!normalized) return `未命名句子 ${index + 1}`;
+        return normalized.length > 18 ? `${normalized.slice(0, 18)}…` : normalized;
+      }
+
+      function normalizeSentence(item, index) {
+        const text = item && typeof item.text === "string" ? item.text.trim() : "";
+        return {
+          id: item && typeof item.id === "number" ? item.id : Date.now() + index,
+          title: item && typeof item.title === "string" && item.title.trim()
+            ? item.title.trim()
+            : fallbackTitle(text, index),
+          text,
+          image: item && typeof item.image === "string" && item.image.startsWith("data:image/")
+            ? item.image
+            : null
+        };
+      }
+
       function loadSentences() {
         try {
           const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          if (Array.isArray(saved)) return saved;
+          if (Array.isArray(saved)) {
+            const normalized = saved.map(normalizeSentence).filter(item => item.text);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+            return normalized;
+          }
         } catch (_) {}
-        return starterSentences.map((text, index) => ({ id: Date.now() + index, text }));
+        return starterSentences.map((item, index) => normalizeSentence({
+          ...item,
+          id: Date.now() + index
+        }, index));
       }
 
       function saveSentences() {
@@ -408,7 +444,9 @@
 
       function render() {
         const keyword = searchInput.value.trim().toLowerCase();
-        const filtered = sentences.filter(item => item.text.toLowerCase().includes(keyword));
+        const filtered = sentences.filter(item =>
+          `${item.title} ${item.text}`.toLowerCase().includes(keyword)
+        );
         countText.textContent = keyword
           ? `${filtered.length} / ${sentences.length} 句`
           : `${sentences.length} 句`;
@@ -422,7 +460,10 @@
           <article class="card" data-id="${item.id}">
             <span class="number" aria-label="第 ${index + 1} 句">${index + 1}</span>
             <div class="thumb">${item.image ? `<img src="${item.image}" alt="句子附圖">` : "無圖片"}</div>
-            <p class="sentence">${escapeHtml(item.text)}</p>
+            <div class="sentence-copy">
+              <h2 class="sentence-title">${escapeHtml(item.title)}</h2>
+              <p class="sentence">${escapeHtml(item.text)}</p>
+            </div>
             <div class="actions">
               <button class="icon-btn edit" type="button" title="編輯句子" aria-label="編輯句子">✎</button>
               <button class="icon-btn remove" type="button" title="刪除句子" aria-label="刪除句子">×</button>
@@ -449,13 +490,14 @@
       function openEditor(item = null) {
         editingId = item ? item.id : null;
         dialogTitle.textContent = item ? "編輯句子" : "新增句子";
+        titleInput.value = item ? item.title : "";
         sentenceInput.value = item ? item.text : "";
         pendingImage = item && item.image ? item.image : null;
         imageInput.value = "";
         updateImagePreview();
         deleteBtn.hidden = !item;
         dialog.showModal();
-        setTimeout(() => sentenceInput.focus(), 30);
+        setTimeout(() => titleInput.focus(), 30);
       }
 
       function fileToDataUrl(file) {
@@ -623,10 +665,7 @@
           if (!item || typeof item.text !== "string" || !item.text.trim()) {
             throw new Error("備份內含無效句子");
           }
-          const image = typeof item.image === "string" && item.image.startsWith("data:image/")
-            ? item.image
-            : null;
-          return { id: Date.now() + index, text: item.text.trim(), image };
+          return normalizeSentence({ ...item, id: Date.now() + index }, index);
         });
       }
 
@@ -677,15 +716,16 @@
 
       form.addEventListener("submit", event => {
         event.preventDefault();
+        const title = titleInput.value.trim();
         const text = sentenceInput.value.trim();
-        if (!text) return;
+        if (!title || !text) return;
 
         const previousSentences = sentences;
         if (editingId === null) {
-          sentences = [{ id: Date.now(), text, image: pendingImage }, ...sentences];
+          sentences = [{ id: Date.now(), title, text, image: pendingImage }, ...sentences];
         } else {
           sentences = sentences.map(item => item.id === editingId
-            ? { ...item, text, image: pendingImage }
+            ? { ...item, title, text, image: pendingImage }
             : item);
         }
 
