@@ -112,6 +112,12 @@
       color: var(--muted);
       white-space: nowrap;
     }
+    .drag-hint {
+      grid-column: 1 / -1;
+      margin: -2px 2px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
     .list { display: grid; gap: 14px; }
     .category-group {
@@ -121,6 +127,11 @@
       background: rgba(16, 24, 43, .72);
       box-shadow: 0 8px 28px rgba(0,0,0,.12);
     }
+    .category-group.drop-target {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124,108,255,.16);
+    }
+    .category-group.drop-target .category-content { background: rgba(124,108,255,.07); }
     .category-summary {
       display: flex;
       align-items: center;
@@ -169,7 +180,7 @@
 
     .card {
       display: grid;
-      grid-template-columns: auto 108px minmax(0, 1fr) auto;
+      grid-template-columns: auto auto 108px minmax(0, 1fr) auto;
       align-items: center;
       gap: 18px;
       padding: 18px;
@@ -180,7 +191,27 @@
       transition: .16s ease;
     }
 
+    .card.dragging { opacity: .42; transform: scale(.99); }
     .card:hover { background: var(--card-hover); border-color: #40517a; transform: translateY(-1px); }
+    .drag-handle {
+      width: 34px;
+      height: 46px;
+      padding: 0;
+      border: 1px dashed #4b5e8a;
+      border-radius: 10px;
+      color: #b8c3de;
+      background: rgba(10,16,32,.46);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .drag-handle:hover, .drag-handle:focus-visible {
+      border-color: var(--primary);
+      color: #fff;
+      outline: none;
+      background: rgba(124,108,255,.16);
+    }
+    .drag-handle:active { cursor: grabbing; }
     .number {
       display: grid;
       place-items: center;
@@ -344,9 +375,9 @@
       .header { align-items: stretch; flex-direction: column; }
       .header-actions { justify-content: stretch; }
       .header-actions button, .header-actions label { flex: 1; justify-content: center; text-align: center; }
-      .card { grid-template-columns: auto minmax(0, 1fr); gap: 12px; }
+      .card { grid-template-columns: auto auto minmax(0, 1fr); gap: 12px; }
       .thumb { grid-column: 1 / -1; width: 100%; height: 150px; }
-      .sentence-copy { grid-column: 2; }
+      .sentence-copy { grid-column: 3; }
       .actions { grid-column: 1 / -1; }
       .actions { justify-content: flex-end; }
       .copy { flex: 1; }
@@ -374,6 +405,7 @@
     <section class="toolbar" aria-label="工具列">
       <input class="search" id="searchInput" type="search" placeholder="搜尋分類、標題或句子內容…" autocomplete="off">
       <div class="count" id="countText">0 句</div>
+      <p class="drag-hint" id="dragHint">按住 ⋮⋮ 拖曳句子可調整排序，也能拖到其他分類。</p>
     </section>
 
     <section class="list" id="sentenceList" aria-live="polite"></section>
@@ -428,6 +460,7 @@
 
       const list = document.getElementById("sentenceList");
       const countText = document.getElementById("countText");
+      const dragHint = document.getElementById("dragHint");
       const searchInput = document.getElementById("searchInput");
       const addBtn = document.getElementById("addBtn");
       const addCategoryBtn = document.getElementById("addCategoryBtn");
@@ -449,6 +482,8 @@
       let editingId = null;
       let pendingImage = null;
       let toastTimer;
+      let draggingId = null;
+      let pointerDrag = null;
       let categories = loadCategories();
       let sentences = loadSentences();
       categories = uniqueCategories([
@@ -542,6 +577,9 @@
         countText.textContent = keyword
           ? `${filtered.length} / ${sentences.length} 句`
           : `${sentences.length} 句`;
+        dragHint.textContent = keyword
+          ? "清除搜尋後，即可拖曳排序或移動分類。"
+          : "按住 ⋮⋮ 拖曳句子可調整排序，也能拖到其他分類。";
 
         if (!filtered.length) {
           list.innerHTML = `<div class="empty">${sentences.length ? "找不到符合的句子" : "還沒有句子，請點「新增句子」開始設定。"}</div>`;
@@ -561,7 +599,15 @@
             ? group.items.map(item => {
                 cardNumber += 1;
                 return `
-                  <article class="card" data-id="${item.id}">
+                  <article class="card" data-id="${item.id}" data-sentence-id="${item.id}">
+                    <button
+                      class="drag-handle"
+                      type="button"
+                      draggable="${keyword ? "false" : "true"}"
+                      data-id="${item.id}"
+                      title="拖曳排序或移動分類"
+                      aria-label="拖曳「${escapeHtml(item.title)}」調整排序或分類"
+                    >⋮⋮</button>
                     <span class="number" aria-label="第 ${cardNumber} 句">${cardNumber}</span>
                     <div class="thumb">${item.image ? `<img src="${item.image}" alt="句子附圖">` : "無圖片"}</div>
                     <div class="sentence-copy">
@@ -583,7 +629,7 @@
             : `<div class="category-empty">此分類尚未加入句子</div>`;
 
           return `
-            <details class="category-group" ${keyword || groupIndex === 0 ? "open" : ""}>
+            <details class="category-group" data-drop-category="${escapeHtml(group.category)}" ${keyword || groupIndex === 0 ? "open" : ""}>
               <summary class="category-summary">
                 <span class="category-chevron">›</span>
                 <strong>${escapeHtml(group.category)}</strong>
@@ -824,6 +870,83 @@
         showToast("分類已刪除");
       }
 
+      function moveSentence(sentenceId, targetCategory, targetId = null, placeAfter = false) {
+        const dragged = sentences.find(item => item.id === sentenceId);
+        if (!dragged || !categories.includes(targetCategory) || targetId === sentenceId) return;
+
+        const categoryItems = new Map(categories.map(category => [category, []]));
+        sentences.forEach(item => {
+          if (item.id !== sentenceId && categoryItems.has(item.category)) {
+            categoryItems.get(item.category).push(item);
+          }
+        });
+
+        const targetItems = categoryItems.get(targetCategory);
+        if (!targetItems) return;
+        const targetIndex = targetId === null
+          ? targetItems.length
+          : targetItems.findIndex(item => item.id === targetId);
+        const insertAt = targetIndex < 0
+          ? targetItems.length
+          : Math.min(targetItems.length, targetIndex + (placeAfter ? 1 : 0));
+        targetItems.splice(insertAt, 0, { ...dragged, category: targetCategory });
+
+        const previousSentences = sentences;
+        sentences = categories.flatMap(category => categoryItems.get(category) || []);
+        if (!saveSentences()) {
+          sentences = previousSentences;
+          return;
+        }
+
+        render();
+        showToast(dragged.category === targetCategory
+          ? "句子排序已更新"
+          : `已移到「${targetCategory}」`);
+      }
+
+      function shiftSentence(sentenceId, direction) {
+        const item = sentences.find(entry => entry.id === sentenceId);
+        if (!item) return;
+        const siblings = sentences.filter(entry => entry.category === item.category);
+        const index = siblings.findIndex(entry => entry.id === sentenceId);
+        const target = siblings[index + direction];
+        if (!target) return;
+        moveSentence(sentenceId, item.category, target.id, direction > 0);
+      }
+
+      function getDropTarget(clientX, clientY) {
+        const element = document.elementFromPoint(clientX, clientY);
+        const group = element && element.closest("[data-drop-category]");
+        const category = group && group.dataset.dropCategory;
+        if (!category) return null;
+        const card = element.closest("[data-sentence-id]");
+        const targetId = card ? Number(card.dataset.sentenceId) : null;
+        return {
+          category,
+          targetId: Number.isFinite(targetId) ? targetId : null,
+          placeAfter: card
+            ? clientY > card.getBoundingClientRect().top + card.offsetHeight / 2
+            : false
+        };
+      }
+
+      function setDropTarget(category) {
+        list.querySelectorAll(".category-group.drop-target")
+          .forEach(group => group.classList.remove("drop-target"));
+        if (!category) return;
+        [...list.querySelectorAll(".category-group")].find(
+          group => group.dataset.dropCategory === category
+        )?.classList.add("drop-target");
+      }
+
+      function resetDragging() {
+        draggingId = null;
+        pointerDrag = null;
+        list.querySelectorAll(".card.dragging")
+          .forEach(card => card.classList.remove("dragging"));
+        setDropTarget(null);
+      }
+
       function exportBackup() {
         const payload = {
           version: 2,
@@ -952,6 +1075,115 @@
         render();
         dialog.close();
         showToast("句子已刪除");
+      });
+
+      list.addEventListener("dragstart", event => {
+        const handle = event.target.closest(".drag-handle");
+        if (!handle) return;
+        if (searchInput.value.trim()) {
+          event.preventDefault();
+          showToast("請先清除搜尋再拖曳");
+          return;
+        }
+        draggingId = Number(handle.dataset.id);
+        const card = handle.closest(".card");
+        card?.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(draggingId));
+        if (card) event.dataTransfer.setDragImage(card, 24, 24);
+      });
+
+      list.addEventListener("dragover", event => {
+        if (draggingId === null) return;
+        const group = event.target.closest("[data-drop-category]");
+        if (!group) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        setDropTarget(group.dataset.dropCategory);
+      });
+
+      list.addEventListener("drop", event => {
+        if (draggingId === null) return;
+        const group = event.target.closest("[data-drop-category]");
+        if (!group) return;
+        event.preventDefault();
+        const card = event.target.closest("[data-sentence-id]");
+        const id = Number(event.dataTransfer.getData("text/plain") || draggingId);
+        const rect = card && card.getBoundingClientRect();
+        moveSentence(
+          id,
+          group.dataset.dropCategory,
+          card ? Number(card.dataset.sentenceId) : null,
+          Boolean(card && event.clientY > rect.top + rect.height / 2)
+        );
+        resetDragging();
+      });
+
+      list.addEventListener("dragend", resetDragging);
+
+      list.addEventListener("pointerdown", event => {
+        const handle = event.target.closest(".drag-handle");
+        if (!handle || event.pointerType === "mouse") return;
+        if (searchInput.value.trim()) {
+          showToast("請先清除搜尋再拖曳");
+          return;
+        }
+        event.preventDefault();
+        handle.setPointerCapture(event.pointerId);
+        pointerDrag = {
+          id: Number(handle.dataset.id),
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          moved: false
+        };
+      });
+
+      list.addEventListener("pointermove", event => {
+        if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+        if (Math.hypot(
+          event.clientX - pointerDrag.startX,
+          event.clientY - pointerDrag.startY
+        ) > 8) {
+          pointerDrag.moved = true;
+          draggingId = pointerDrag.id;
+          list.querySelector(`[data-sentence-id="${pointerDrag.id}"]`)?.classList.add("dragging");
+        }
+        if (!pointerDrag.moved) return;
+        const target = getDropTarget(event.clientX, event.clientY);
+        setDropTarget(target && target.category);
+        if (event.clientY < 80) window.scrollBy(0, -18);
+        if (event.clientY > window.innerHeight - 80) window.scrollBy(0, 18);
+      });
+
+      list.addEventListener("pointerup", event => {
+        if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+        if (pointerDrag.moved) {
+          const target = getDropTarget(event.clientX, event.clientY);
+          if (target) {
+            moveSentence(
+              pointerDrag.id,
+              target.category,
+              target.targetId,
+              target.placeAfter
+            );
+          }
+        }
+        resetDragging();
+      });
+
+      list.addEventListener("pointercancel", resetDragging);
+
+      list.addEventListener("keydown", event => {
+        const handle = event.target.closest(".drag-handle");
+        if (!handle) return;
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+          event.preventDefault();
+          shiftSentence(
+            Number(handle.dataset.id),
+            event.key === "ArrowUp" ? -1 : 1
+          );
+        }
       });
 
       list.addEventListener("click", event => {
