@@ -450,6 +450,7 @@
 
       const STORAGE_KEY = "quick-copy-sentences-v1";
       const CATEGORY_STORAGE_KEY = "quick-copy-categories-v1";
+      const OPEN_CATEGORY_STORAGE_KEY = "quick-copy-open-categories-v1";
       const DEFAULT_CATEGORY = "未分類";
       const starterCategories = ["一般客服", "通知提醒", DEFAULT_CATEGORY];
       const starterSentences = [
@@ -491,6 +492,9 @@
         ...sentences.map(item => item.category),
         DEFAULT_CATEGORY
       ]);
+      let openCategories = loadOpenCategories();
+      let categoryStateReady = false;
+      let previousSearchActive = false;
       saveCategories();
 
       function fallbackTitle(text, index = 0) {
@@ -538,6 +542,31 @@
         }
       }
 
+      function loadOpenCategories() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(OPEN_CATEGORY_STORAGE_KEY));
+          if (Array.isArray(saved)) {
+            return new Set(saved.filter(category => categories.includes(category)));
+          }
+        } catch (_) {}
+        return new Set(categories.slice(0, 1));
+      }
+
+      function saveOpenCategories() {
+        try {
+          localStorage.setItem(
+            OPEN_CATEGORY_STORAGE_KEY,
+            JSON.stringify([...openCategories])
+          );
+        } catch (_) {
+          // The sentence data can still work if this display preference cannot save.
+        }
+      }
+
+      function restoreScrollPosition(position) {
+        requestAnimationFrame(() => window.scrollTo(0, position));
+      }
+
       function loadSentences() {
         try {
           const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -570,6 +599,7 @@
       }
 
       function render() {
+        const scrollPosition = window.scrollY;
         const keyword = searchInput.value.trim().toLowerCase();
         const filtered = sentences.filter(item =>
           `${item.category} ${item.title} ${item.text}`.toLowerCase().includes(keyword)
@@ -583,6 +613,9 @@
 
         if (!filtered.length) {
           list.innerHTML = `<div class="empty">${sentences.length ? "找不到符合的句子" : "還沒有句子，請點「新增句子」開始設定。"}</div>`;
+          previousSearchActive = Boolean(keyword);
+          if (categoryStateReady) restoreScrollPosition(scrollPosition);
+          categoryStateReady = true;
           return;
         }
 
@@ -594,7 +627,7 @@
           .filter(group => !keyword || group.items.length);
 
         let cardNumber = 0;
-        list.innerHTML = groups.map((group, groupIndex) => {
+        list.innerHTML = groups.map(group => {
           const cards = group.items.length
             ? group.items.map(item => {
                 cardNumber += 1;
@@ -629,7 +662,7 @@
             : `<div class="category-empty">此分類尚未加入句子</div>`;
 
           return `
-            <details class="category-group" data-drop-category="${escapeHtml(group.category)}" ${keyword || groupIndex === 0 ? "open" : ""}>
+            <details class="category-group" data-drop-category="${escapeHtml(group.category)}" ${keyword || openCategories.has(group.category) ? "open" : ""}>
               <summary class="category-summary">
                 <span class="category-chevron">›</span>
                 <strong>${escapeHtml(group.category)}</strong>
@@ -642,6 +675,9 @@
             </details>
           `;
         }).join("");
+        previousSearchActive = Boolean(keyword);
+        if (categoryStateReady) restoreScrollPosition(scrollPosition);
+        categoryStateReady = true;
       }
 
       function updateImagePreview() {
@@ -830,6 +866,8 @@
           categories.pop();
           return;
         }
+        openCategories.add(requested);
+        saveOpenCategories();
         render();
         showToast("分類已新增");
       }
@@ -866,6 +904,8 @@
           return;
         }
 
+        openCategories.delete(category);
+        saveOpenCategories();
         render();
         showToast("分類已刪除");
       }
@@ -1008,6 +1048,8 @@
             saveCategories();
             return;
           }
+          openCategories = new Set(categories.slice(0, 1));
+          saveOpenCategories();
           render();
           showToast("備份已匯入");
         } catch (error) {
@@ -1017,6 +1059,21 @@
         }
       });
       searchInput.addEventListener("input", render);
+      list.addEventListener("toggle", event => {
+        const group = event.target;
+        if (
+          previousSearchActive ||
+          !(group instanceof HTMLDetailsElement) ||
+          !group.classList.contains("category-group")
+        ) {
+          return;
+        }
+        const category = group.dataset.dropCategory;
+        if (!category) return;
+        if (group.open) openCategories.add(category);
+        else openCategories.delete(category);
+        saveOpenCategories();
+      }, true);
       cancelBtn.addEventListener("click", () => dialog.close());
       removeImageBtn.addEventListener("click", () => {
         pendingImage = null;
