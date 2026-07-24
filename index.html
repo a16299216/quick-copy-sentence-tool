@@ -148,6 +148,17 @@
       font-size: 13px;
       background: rgba(124,108,255,.14);
     }
+    .delete-category {
+      border: 1px solid rgba(255,111,120,.35);
+      border-radius: 9px;
+      padding: 6px 10px;
+      color: #ffd8db;
+      background: rgba(255,111,120,.1);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .delete-category:hover { background: rgba(255,111,120,.22); }
     .category-content {
       display: grid;
       gap: 12px;
@@ -577,6 +588,9 @@
                 <span class="category-chevron">›</span>
                 <strong>${escapeHtml(group.category)}</strong>
                 <span class="category-count">${group.items.length} 句</span>
+                ${group.category !== DEFAULT_CATEGORY
+                  ? `<button class="delete-category" type="button" data-category="${escapeHtml(group.category)}">刪除</button>`
+                  : ""}
               </summary>
               <div class="category-content">${cards}</div>
             </details>
@@ -774,6 +788,42 @@
         showToast("分類已新增");
       }
 
+      function deleteCategory(category) {
+        if (category === DEFAULT_CATEGORY) {
+          showToast("「未分類」不能刪除");
+          return;
+        }
+
+        const sentenceCount = sentences.filter(item => item.category === category).length;
+        const message = sentenceCount
+          ? `確定刪除分類「${category}」嗎？其中 ${sentenceCount} 句會移到「未分類」。`
+          : `確定刪除分類「${category}」嗎？`;
+        if (!confirm(message)) return;
+
+        const previousSentences = sentences;
+        const previousCategories = categories;
+        sentences = sentences.map(item =>
+          item.category === category
+            ? { ...item, category: DEFAULT_CATEGORY }
+            : item
+        );
+        categories = uniqueCategories([
+          ...categories.filter(item => item !== category),
+          DEFAULT_CATEGORY
+        ]);
+
+        if (!saveSentences() || !saveCategories()) {
+          sentences = previousSentences;
+          categories = previousCategories;
+          saveSentences();
+          saveCategories();
+          return;
+        }
+
+        render();
+        showToast("分類已刪除");
+      }
+
       function exportBackup() {
         const payload = {
           version: 2,
@@ -905,6 +955,14 @@
       });
 
       list.addEventListener("click", event => {
+        const deleteCategoryButton = event.target.closest(".delete-category");
+        if (deleteCategoryButton) {
+          event.preventDefault();
+          event.stopPropagation();
+          deleteCategory(deleteCategoryButton.dataset.category);
+          return;
+        }
+
         const card = event.target.closest(".card");
         if (!card) return;
         const item = sentences.find(entry => String(entry.id) === card.dataset.id);
