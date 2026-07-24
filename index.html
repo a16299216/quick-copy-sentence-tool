@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>一鍵複製句子工具</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: rgba(20, 28, 48, .88);
+      --card: #18223a;
+      --card-hover: #202d4b;
+      --line: #2b395b;
+      --text: #f3f6ff;
+      --muted: #a8b3cb;
+      --primary: #7c6cff;
+      --primary-hover: #9286ff;
+      --danger: #ff6f78;
+      --success: #43d19e;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .34);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(124, 108, 255, .26), transparent 36rem),
+        radial-gradient(circle at 100% 100%, rgba(67, 209, 158, .12), transparent 32rem),
+        var(--bg);
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 80px;
+    }
+
+    .header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 44px);
+      letter-spacing: -.04em;
+    }
+
+    .subtitle { margin: 0; color: var(--muted); }
+    .header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+
+    .primary, .secondary, .ghost, .danger {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      color: var(--text);
+      transition: .16s ease;
+    }
+
+    .primary {
+      background: var(--primary);
+      box-shadow: 0 8px 24px rgba(124, 108, 255, .28);
+    }
+
+    .primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .secondary { background: #263453; }
+    .secondary:hover, .ghost:hover { background: #334363; }
+    .ghost { background: transparent; border: 1px solid var(--line); }
+    .danger { color: #ffd8db; background: rgba(255, 111, 120, .12); }
+    .danger:hover { background: rgba(255, 111, 120, .22); }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 14px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      outline: none;
+      background: #10182b;
+    }
+
+    .search:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,108,255,.16); }
+
+    .count {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .list { display: grid; gap: 12px; }
+
+    .card {
+      display: grid;
+      grid-template-columns: auto 108px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      box-shadow: 0 8px 28px rgba(0,0,0,.14);
+      transition: .16s ease;
+    }
+
+    .card:hover { background: var(--card-hover); border-color: #40517a; transform: translateY(-1px); }
+    .number {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      color: #cbc5ff;
+      font-weight: 800;
+      background: rgba(124, 108, 255, .14);
+    }
+    .thumb {
+      display: grid;
+      place-items: center;
+      width: 108px;
+      height: 78px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      background: #10182b;
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .sentence { margin: 0; font-size: 17px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+    .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; align-items: center; }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      background: transparent;
+    }
+    .icon-btn:hover { color: var(--text); background: #334363; }
+
+    .copy {
+      min-width: 110px;
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 18px;
+      color: white;
+      font-weight: 700;
+      background: var(--primary);
+    }
+    .copy:hover { background: var(--primary-hover); }
+    .copy.copied { background: var(--success); }
+    .image-action {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 13px;
+      color: var(--text);
+      background: #263453;
+    }
+    .image-action:hover { background: #334363; }
+
+    .empty {
+      padding: 64px 24px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    dialog {
+      width: min(620px, calc(100% - 32px));
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      color: var(--text);
+      background: #141d32;
+      box-shadow: var(--shadow);
+    }
+    dialog::backdrop { background: rgba(3, 7, 16, .74); backdrop-filter: blur(4px); }
+    .modal-body { padding: 24px; }
+    .modal-body h2 { margin: 0 0 6px; }
+    .modal-body p { margin: 0 0 18px; color: var(--muted); }
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      color: var(--text);
+      outline: none;
+      background: #0e1628;
+      line-height: 1.6;
+    }
+    .image-picker {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #0e1628;
+    }
+    .image-picker-title { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+    .image-picker-row { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 14px; align-items: center; }
+    .image-preview {
+      display: grid;
+      place-items: center;
+      width: 140px;
+      height: 104px;
+      overflow: hidden;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      background: #10182b;
+    }
+    .image-preview img { width: 100%; height: 100%; object-fit: contain; }
+    .image-picker-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .file-label {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 12px;
+      padding: 11px 15px;
+      color: var(--text);
+      cursor: pointer;
+      background: #263453;
+    }
+    .file-label:hover { background: #334363; }
+    .image-note { margin: 10px 0 0 !important; font-size: 12px; }
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .right-actions { display: flex; gap: 10px; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      z-index: 10;
+      transform: translate(-50%, 16px);
+      padding: 11px 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      background: #202b46;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 680px) {
+      .app { width: min(100% - 22px, 1040px); padding-top: 24px; }
+      .header { align-items: stretch; flex-direction: column; }
+      .header-actions { justify-content: stretch; }
+      .header-actions button, .header-actions label { flex: 1; justify-content: center; text-align: center; }
+      .card { grid-template-columns: auto minmax(0, 1fr); gap: 12px; }
+      .thumb { grid-column: 1 / -1; width: 100%; height: 150px; }
+      .actions { grid-column: 1 / -1; }
+      .actions { justify-content: flex-end; }
+      .copy { flex: 1; }
+      .image-picker-row { grid-template-columns: 1fr; }
+      .image-preview { width: 100%; height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>一鍵複製句子</h1>
+        <p class="subtitle">點一下立即複製，句子會自動保存在這台電腦。</p>
+      </div>
+      <div class="header-actions">
+        <button class="ghost" id="exportBtn" type="button">匯出備份</button>
+        <label class="ghost file-label" for="importInput">匯入備份</label>
+        <input id="importInput" type="file" accept=".json,application/json" hidden>
+        <button class="primary" id="addBtn" type="button">＋ 新增句子</button>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="工具列">
+      <input class="search" id="searchInput" type="search" placeholder="搜尋句子…" autocomplete="off">
+      <div class="count" id="countText">0 句</div>
+    </section>
+
+    <section class="list" id="sentenceList" aria-live="polite"></section>
+  </main>
+
+  <dialog id="editorDialog">
+    <form class="modal-body" id="editorForm" method="dialog">
+      <h2 id="dialogTitle">新增句子</h2>
+      <p>輸入句子並選擇圖片，儲存後就會逐條顯示在首頁。</p>
+      <textarea id="sentenceInput" placeholder="例如：您好，謝謝您的詢問，我現在為您確認。" required></textarea>
+      <section class="image-picker" aria-label="附加圖片">
+        <p class="image-picker-title">附加圖片（選填）</p>
+        <div class="image-picker-row">
+          <div class="image-preview" id="imagePreview">尚未選擇圖片</div>
+          <div>
+            <div class="image-picker-actions">
+              <label class="file-label" for="imageInput">選擇圖片</label>
+              <input id="imageInput" type="file" accept="image/*" hidden>
+              <button class="ghost" id="removeImageBtn" type="button" hidden>移除圖片</button>
+            </div>
+            <p class="image-note">支援 JPG、PNG、WebP；會自動壓縮後保存在這台電腦。</p>
+          </div>
+        </div>
+      </section>
+      <div class="modal-actions">
+        <button class="danger" id="deleteBtn" type="button" hidden>刪除</button>
+        <div class="right-actions">
+          <button class="ghost" id="cancelBtn" type="button">取消</button>
+          <button class="primary" type="submit">儲存句子</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status">已複製</div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "quick-copy-sentences-v1";
+      const starterSentences = [
+        "您好，謝謝您的詢問，我現在為您確認。",
+        "已收到您的訊息，我們會盡快為您處理。",
+        "感謝您的耐心等候，如有最新進度會立即通知您。"
+      ];
+
+      const list = document.getElementById("sentenceList");
+      const countText = document.getElementById("countText");
+      const searchInput = document.getElementById("searchInput");
+      const addBtn = document.getElementById("addBtn");
+      const exportBtn = document.getElementById("exportBtn");
+      const importInput = document.getElementById("importInput");
+      const dialog = document.getElementById("editorDialog");
+      const form = document.getElementById("editorForm");
+      const dialogTitle = document.getElementById("dialogTitle");
+      const sentenceInput = document.getElementById("sentenceInput");
+      const imageInput = document.getElementById("imageInput");
+      const imagePreview = document.getElementById("imagePreview");
+      const removeImageBtn = document.getElementById("removeImageBtn");
+      const deleteBtn = document.getElementById("deleteBtn");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const toast = document.getElementById("toast");
+
+      let editingId = null;
+      let pendingImage = null;
+      let toastTimer;
+      let sentences = loadSentences();
+
+      function loadSentences() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (Array.isArray(saved)) return saved;
+        } catch (_) {}
+        return starterSentences.map((text, index) => ({ id: Date.now() + index, text }));
+      }
+
+      function saveSentences() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(sentences));
+          return true;
+        } catch (_) {
+          showToast("儲存空間不足，請移除部分圖片");
+          return false;
+        }
+      }
+
+      function escapeHtml(value) {
+        return value.replace(/[&<>"']/g, char => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+        })[char]);
+      }
+
+      function render() {
+        const keyword = searchInput.value.trim().toLowerCase();
+        const filtered = sentences.filter(item => item.text.toLowerCase().includes(keyword));
+        countText.textContent = keyword
+          ? `${filtered.length} / ${sentences.length} 句`
+          : `${sentences.length} 句`;
+
+        if (!filtered.length) {
+          list.innerHTML = `<div class="empty">${sentences.length ? "找不到符合的句子" : "還沒有句子，請點「新增句子」開始設定。"}</div>`;
+          return;
+        }
+
+        list.innerHTML = filtered.map((item, index) => `
+          <article class="card" data-id="${item.id}">
+            <span class="number" aria-label="第 ${index + 1} 句">${index + 1}</span>
+            <div class="thumb">${item.image ? `<img src="${item.image}" alt="句子附圖">` : "無圖片"}</div>
+            <p class="sentence">${escapeHtml(item.text)}</p>
+            <div class="actions">
+              <button class="icon-btn edit" type="button" title="編輯句子" aria-label="編輯句子">✎</button>
+              <button class="icon-btn remove" type="button" title="刪除句子" aria-label="刪除句子">×</button>
+              ${item.image ? `
+                <button class="image-action copy-image" type="button">複製圖片</button>
+                <button class="image-action download-image" type="button">下載圖片</button>
+              ` : ""}
+              <button class="copy" type="button">複製文字</button>
+            </div>
+          </article>
+        `).join("");
+      }
+
+      function updateImagePreview() {
+        if (pendingImage) {
+          imagePreview.innerHTML = `<img src="${pendingImage}" alt="準備儲存的圖片">`;
+          removeImageBtn.hidden = false;
+        } else {
+          imagePreview.textContent = "尚未選擇圖片";
+          removeImageBtn.hidden = true;
+        }
+      }
+
+      function openEditor(item = null) {
+        editingId = item ? item.id : null;
+        dialogTitle.textContent = item ? "編輯句子" : "新增句子";
+        sentenceInput.value = item ? item.text : "";
+        pendingImage = item && item.image ? item.image : null;
+        imageInput.value = "";
+        updateImagePreview();
+        deleteBtn.hidden = !item;
+        dialog.showModal();
+        setTimeout(() => sentenceInput.focus(), 30);
+      }
+
+      function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function loadImage(dataUrl) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+          image.src = dataUrl;
+        });
+      }
+
+      async function compressImage(file) {
+        if (!file.type.startsWith("image/")) throw new Error("請選擇圖片檔案");
+        if (file.size > 12 * 1024 * 1024) throw new Error("圖片不可超過 12 MB");
+
+        const source = await fileToDataUrl(file);
+        const image = await loadImage(source);
+        const maxSide = 1000;
+        const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        let quality = 0.78;
+        let compressed = canvas.toDataURL("image/webp", quality);
+        while (compressed.length > 500 * 1024 && quality > 0.42) {
+          quality -= 0.09;
+          compressed = canvas.toDataURL("image/webp", quality);
+        }
+        if (compressed.length > 500 * 1024) {
+          throw new Error("圖片壓縮後仍太大，請換一張較小的圖片");
+        }
+        return compressed;
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1500);
+      }
+
+      async function copyText(text, button) {
+        let copied = false;
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(text);
+            copied = true;
+          } catch (_) {}
+        }
+
+        if (!copied) {
+          const helper = document.createElement("textarea");
+          helper.value = text;
+          helper.setAttribute("readonly", "");
+          helper.style.position = "fixed";
+          helper.style.opacity = "0";
+          document.body.appendChild(helper);
+          helper.select();
+          copied = document.execCommand("copy");
+          helper.remove();
+        }
+
+        if (copied) {
+          button.textContent = "✓ 已複製";
+          button.classList.add("copied");
+          showToast("已複製到剪貼簿");
+          setTimeout(() => {
+            button.textContent = "複製文字";
+            button.classList.remove("copied");
+          }, 1200);
+        } else {
+          showToast("複製失敗，請再試一次");
+        }
+      }
+
+      async function imageDataToPngBlob(dataUrl) {
+        const image = await loadImage(dataUrl);
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        return new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      }
+
+      async function copyImage(dataUrl) {
+        let copied = false;
+        if (navigator.clipboard && window.ClipboardItem && window.isSecureContext) {
+          try {
+            const blob = await imageDataToPngBlob(dataUrl);
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+            copied = true;
+          } catch (_) {}
+        }
+
+        if (!copied) {
+          try {
+            const helper = document.createElement("div");
+            helper.contentEditable = "true";
+            helper.style.position = "fixed";
+            helper.style.left = "-9999px";
+            const image = document.createElement("img");
+            await new Promise((resolve, reject) => {
+              image.onload = resolve;
+              image.onerror = reject;
+              image.src = dataUrl;
+            });
+            helper.appendChild(image);
+            document.body.appendChild(helper);
+            const range = document.createRange();
+            range.selectNodeContents(helper);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            copied = document.execCommand("copy");
+            selection.removeAllRanges();
+            helper.remove();
+          } catch (_) {}
+        }
+
+        showToast(copied ? "圖片已複製" : "此瀏覽器無法直接複製圖片，請使用下載圖片");
+      }
+
+      function downloadImage(dataUrl, id) {
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `句子圖片-${id}.webp`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        showToast("圖片已下載");
+      }
+
+      function exportBackup() {
+        const payload = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          sentences
+        };
+        const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `句子工具備份-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        showToast("備份已匯出");
+      }
+
+      function normalizeImportedSentences(value) {
+        const source = Array.isArray(value) ? value : value && value.sentences;
+        if (!Array.isArray(source) || source.length > 200) throw new Error("備份格式不正確");
+        return source.map((item, index) => {
+          if (!item || typeof item.text !== "string" || !item.text.trim()) {
+            throw new Error("備份內含無效句子");
+          }
+          const image = typeof item.image === "string" && item.image.startsWith("data:image/")
+            ? item.image
+            : null;
+          return { id: Date.now() + index, text: item.text.trim(), image };
+        });
+      }
+
+      addBtn.addEventListener("click", () => openEditor());
+      exportBtn.addEventListener("click", exportBackup);
+      importInput.addEventListener("change", async () => {
+        const file = importInput.files && importInput.files[0];
+        if (!file) return;
+        try {
+          if (file.size > 12 * 1024 * 1024) throw new Error("備份檔案不可超過 12 MB");
+          const imported = normalizeImportedSentences(JSON.parse(await file.text()));
+          if (!confirm(`將匯入 ${imported.length} 句並取代目前內容，確定繼續嗎？`)) return;
+          const previousSentences = sentences;
+          sentences = imported;
+          if (!saveSentences()) {
+            sentences = previousSentences;
+            return;
+          }
+          render();
+          showToast("備份已匯入");
+        } catch (error) {
+          showToast(error.message || "備份匯入失敗");
+        } finally {
+          importInput.value = "";
+        }
+      });
+      searchInput.addEventListener("input", render);
+      cancelBtn.addEventListener("click", () => dialog.close());
+      removeImageBtn.addEventListener("click", () => {
+        pendingImage = null;
+        imageInput.value = "";
+        updateImagePreview();
+      });
+
+      imageInput.addEventListener("change", async () => {
+        const file = imageInput.files && imageInput.files[0];
+        if (!file) return;
+        try {
+          showToast("正在處理圖片…");
+          pendingImage = await compressImage(file);
+          updateImagePreview();
+          showToast("圖片已加入");
+        } catch (error) {
+          imageInput.value = "";
+          showToast(error.message || "圖片處理失敗");
+        }
+      });
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        const text = sentenceInput.value.trim();
+        if (!text) return;
+
+        const previousSentences = sentences;
+        if (editingId === null) {
+          sentences = [{ id: Date.now(), text, image: pendingImage }, ...sentences];
+        } else {
+          sentences = sentences.map(item => item.id === editingId
+            ? { ...item, text, image: pendingImage }
+            : item);
+        }
+
+        if (!saveSentences()) {
+          sentences = previousSentences;
+          return;
+        }
+        render();
+        dialog.close();
+        showToast(editingId === null ? "句子已新增" : "句子已更新");
+      });
+
+      deleteBtn.addEventListener("click", () => {
+        if (editingId === null) return;
+        if (!confirm("確定要刪除這句話嗎？")) return;
+        const previousSentences = sentences;
+        sentences = sentences.filter(item => item.id !== editingId);
+        if (!saveSentences()) {
+          sentences = previousSentences;
+          return;
+        }
+        render();
+        dialog.close();
+        showToast("句子已刪除");
+      });
+
+      list.addEventListener("click", event => {
+        const card = event.target.closest(".card");
+        if (!card) return;
+        const item = sentences.find(entry => String(entry.id) === card.dataset.id);
+        if (!item) return;
+        if (event.target.closest(".copy")) copyText(item.text, event.target.closest(".copy"));
+        if (event.target.closest(".copy-image") && item.image) copyImage(item.image);
+        if (event.target.closest(".download-image") && item.image) downloadImage(item.image, item.id);
+        if (event.target.closest(".edit")) openEditor(item);
+        if (event.target.closest(".remove")) {
+          if (!confirm("確定要刪除這句話嗎？")) return;
+          const previousSentences = sentences;
+          sentences = sentences.filter(entry => entry.id !== item.id);
+          if (!saveSentences()) {
+            sentences = previousSentences;
+            return;
+          }
+          render();
+          showToast("句子已刪除");
+        }
+      });
+
+      dialog.addEventListener("click", event => {
+        if (event.target === dialog) dialog.close();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
