@@ -651,6 +651,7 @@
                       <button class="icon-btn edit" type="button" title="編輯句子" aria-label="編輯句子">✎</button>
                       <button class="icon-btn remove" type="button" title="刪除句子" aria-label="刪除句子">×</button>
                       ${item.image ? `
+                        <button class="image-action copy-image" type="button">只複製圖片</button>
                         <button class="image-action download-image" type="button">下載圖片</button>
                       ` : ""}
                       <button class="copy" type="button">${item.image ? "複製圖片＋文字" : "複製文字"}</button>
@@ -793,6 +794,42 @@
         canvas.height = image.naturalHeight;
         canvas.getContext("2d").drawImage(image, 0, 0);
         return new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      }
+
+      async function copyImage(dataUrl) {
+        let copied = false;
+        if (navigator.clipboard && window.ClipboardItem && window.isSecureContext) {
+          try {
+            const blob = await imageDataToPngBlob(dataUrl);
+            if (!blob) throw new Error("圖片轉換失敗");
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+            copied = true;
+          } catch (_) {}
+        }
+
+        if (!copied) {
+          try {
+            const helper = document.createElement("div");
+            helper.contentEditable = "true";
+            helper.style.position = "fixed";
+            helper.style.left = "-9999px";
+            const image = document.createElement("img");
+            image.src = dataUrl;
+            helper.appendChild(image);
+            document.body.appendChild(helper);
+            await loadImage(dataUrl);
+            const range = document.createRange();
+            range.selectNodeContents(helper);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            copied = document.execCommand("copy");
+            selection.removeAllRanges();
+            helper.remove();
+          } catch (_) {}
+        }
+
+        showToast(copied ? "圖片已複製" : "此瀏覽器無法直接複製圖片，請使用下載圖片");
       }
 
       function clipboardHtml(item) {
@@ -1231,6 +1268,7 @@
         const item = sentences.find(entry => String(entry.id) === card.dataset.id);
         if (!item) return;
         if (event.target.closest(".copy")) copySentence(item, event.target.closest(".copy"));
+        if (event.target.closest(".copy-image") && item.image) copyImage(item.image);
         if (event.target.closest(".download-image") && item.image) downloadImage(item.image, item.id);
         if (event.target.closest(".edit")) openEditor(item);
         if (event.target.closest(".remove")) {
