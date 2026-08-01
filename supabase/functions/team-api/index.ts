@@ -137,6 +137,13 @@ async function getData(profile: Profile) {
       service.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(150),
     ]);
     Object.assign(payload, { users, drafts, deleted_items: deleted, history, audit: logs });
+  } else if (profile.role === "editor") {
+    const { data: myDrafts } = await service.from("answer_drafts")
+      .select("*")
+      .eq("created_by", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    Object.assign(payload, { my_drafts: myDrafts || [] });
   }
   return payload;
 }
