@@ -77,19 +77,48 @@
     const status = document.querySelector("#status");
     let imageDataUrl = "";
 
-    imageInput.addEventListener("change", () => {
+    imageInput.addEventListener("change", async () => {
       const file = imageInput.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        imageDataUrl = typeof reader.result === "string" ? reader.result : "";
+      status.textContent = "正在缩小并压缩图片…";
+      try {
+        imageDataUrl = await compressImage(file);
         preview.querySelector("span")?.remove();
         previewImage.src = imageDataUrl;
         previewImage.style.display = "block";
-        status.textContent = "图片已载入，可以开始测试";
-      };
-      reader.readAsDataURL(file);
+        status.textContent = `图片已处理完成（约 ${Math.ceil(imageDataUrl.length * 0.75 / 1024)} KB）`;
+      } catch {
+        status.textContent = "图片处理失败，请换一张图片";
+      }
     });
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function compressImage(file) {
+      if (!file.type.startsWith("image/")) throw new Error("请选择图片文件");
+      const source = await fileToDataUrl(file);
+      const image = await loadImage(source);
+      const scale = Math.min(1, 1000 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+      let quality = 0.78;
+      let compressed = canvas.toDataURL("image/webp", quality);
+      while (compressed.length > 500 * 1024 && quality > 0.42) {
+        quality -= 0.09;
+        compressed = canvas.toDataURL("image/webp", quality);
+      }
+      if (compressed.length > 500 * 1024) throw new Error("图片压缩后仍然太大");
+      return compressed;
+    }
 
     function clipboardHtml(text) {
       const escapedText = text
