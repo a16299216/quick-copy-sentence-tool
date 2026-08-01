@@ -105,7 +105,7 @@
       if (!file.type.startsWith("image/")) throw new Error("请选择图片文件");
       const source = await fileToDataUrl(file);
       const image = await loadImage(source);
-      const scale = Math.min(1, 1000 / Math.max(image.naturalWidth, image.naturalHeight));
+      const scale = Math.min(1, 1400 / Math.max(image.naturalWidth, image.naturalHeight));
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
       canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
