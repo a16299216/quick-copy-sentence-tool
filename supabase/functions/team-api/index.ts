@@ -10,7 +10,7 @@ const url = Deno.env.get("SUPABASE_URL")!;
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const service = createClient(url, serviceKey, { auth: { persistSession: false } });
 
-type Profile = { id: string; username: string; display_name: string; role: "admin" | "editor" | "viewer"; status: "active" | "disabled" };
+type Profile = { id: string; username: string; display_name: string; role: "admin" | "editor" | "viewer"; status: "active" | "disabled"; session_epoch: number; deleted_at: string | null };
 type Answer = {
   id?: number | null; answer_code?: string; problem_code?: string; problem_title?: string;
   situation_label?: string; platform?: string | null; answer_text?: string; image_key?: string | null;
@@ -35,7 +35,7 @@ async function currentProfile(req: Request) {
   const { data: authData, error: authError } = await service.auth.getUser(token);
   if (authError || !authData.user) throw new Error("UNAUTHORIZED");
   const { data: profile, error } = await service.from("profiles").select("*").eq("id", authData.user.id).single();
-  if (error || !profile || profile.status !== "active") throw new Error("UNAUTHORIZED");
+  if (error || !profile || profile.status !== "active" || profile.deleted_at) throw new Error("UNAUTHORIZED");
   return profile as Profile;
 }
 
@@ -130,7 +130,7 @@ async function getData(profile: Profile) {
   const payload: Record<string, unknown> = { user: profile, items: withImages };
   if (profile.role === "admin") {
     const [{ data: users }, { data: drafts }, { data: deleted }, { data: history }, { data: logs }] = await Promise.all([
-      service.from("profiles").select("*").order("created_at"),
+      service.from("profiles").select("*").is("deleted_at", null).order("created_at"),
       service.from("answer_drafts").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       service.from("answer_items").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false }),
       service.from("answer_history").select("*").order("created_at", { ascending: false }).limit(100),
@@ -230,19 +230,64 @@ async function handleJson(req: Request, profile: Profile, body: Record<string, u
     if (error || !data.user) throw error || new Error("账号建立失败");
     const { error: profileError } = await service.from("profiles").insert({ id: data.user.id, username, display_name: displayName, role, status: "active" });
     if (profileError) { await service.auth.admin.deleteUser(data.user.id); throw profileError; }
-    await audit(profile, "建立账号", "user", data.user.id, null, { username, display_name: displayName, role }); return json({ ok: true });
+    await audit(profile, "建立账号", "user", data.user.id, null, { username, display_name: displayName, role });
+    return json({ ok: true, user: { id: data.user.id, username, display_name: displayName, role } });
   }
   if (action === "updateUser") {
     const id = cleanText(body.id); const role = cleanText(body.role); const status = cleanText(body.status);
     if (!["admin","editor","viewer"].includes(role) || !["active","disabled"].includes(status)) throw new Error("账号权限设置不正确");
-    const { data: before } = await service.from("profiles").select("*").eq("id", id).single();
+    const { data: before } = await service.from("profiles").select("*").eq("id", id).is("deleted_at", null).single();
+    if (!before) throw new Error("找不到账号");
     const { error } = await service.from("profiles").update({ role, status, updated_at: new Date().toISOString() }).eq("id", id);
     if (error) throw error; await audit(profile, "更新账号权限", "user", id, before, { ...before, role, status }); return json({ ok: true });
   }
   if (action === "resetPassword") {
     const id = cleanText(body.id); const password = String(body.password || ""); if (password.length < 8) throw new Error("密码至少需要 8 个字符");
+    const { data: target } = await service.from("profiles").select("id").eq("id", id).is("deleted_at", null).single();
+    if (!target) throw new Error("找不到账号");
     const { error } = await service.auth.admin.updateUserById(id, { password }); if (error) throw error;
     await audit(profile, "重置密码", "user", id, null, null); return json({ ok: true });
+  }
+  if (action === "deleteUser") {
+    const id = cleanText(body.id);
+    if (id === profile.id) throw new Error("不能删除目前登录的管理员账号");
+    const { data: before } = await service.from("profiles").select("*").eq("id", id).is("deleted_at", null).single();
+    if (!before) throw new Error("找不到账号");
+    if (before.role === "admin" && before.status === "active") {
+      const { count } = await service.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin").eq("status", "active").is("deleted_at", null);
+      if ((count || 0) <= 1) throw new Error("不能删除最后一位使用中的管理员"); // last active admin
+    }
+    const deletedAt = new Date().toISOString();
+    const tombstoneUsername = `deleted_${id.replaceAll("-", "").slice(0, 16)}`;
+    const tombstoneEmail = `deleted-${id}@team-answer.local`;
+    const replacementPassword = `${crypto.randomUUID().replaceAll("-", "")}Aa1!`;
+    const { data: removed, error: profileError } = await service.from("profiles").update({
+      username: tombstoneUsername,
+      display_name: `${before.display_name}（已删除）`,
+      status: "disabled",
+      session_epoch: Number(before.session_epoch || 1) + 1,
+      deleted_at: deletedAt,
+      updated_at: deletedAt,
+    }).eq("id", id).is("deleted_at", null).select().single();
+    if (profileError || !removed) throw profileError || new Error("删除账号失败");
+    const { error: authError } = await service.auth.admin.updateUserById(id, {
+      email: tombstoneEmail,
+      password: replacementPassword,
+      ban_duration: "876000h",
+    });
+    if (authError) {
+      await service.from("profiles").update({
+        username: before.username,
+        display_name: before.display_name,
+        status: before.status,
+        session_epoch: before.session_epoch,
+        deleted_at: null,
+        updated_at: new Date().toISOString(),
+      }).eq("id", id);
+      throw authError;
+    }
+    await audit(profile, "删除账号", "user", id, before, { deleted_at: deletedAt, original_username: before.username });
+    return json({ ok: true });
   }
   if (action === "approveDraft") {
     const id = Number(body.id); const { data: draft } = await service.from("answer_drafts").select("*").eq("id", id).eq("status", "pending").single();
