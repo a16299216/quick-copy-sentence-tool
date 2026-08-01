@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>新版图片＋文字复制测试</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, "Microsoft YaHei", sans-serif; background: #f3f6fb; color: #14213d; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px 18px; }
+    main { width: min(860px, 100%); margin: auto; }
+    header { margin-bottom: 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    header p, .hint { color: #68758c; line-height: 1.65; }
+    .badge { display: inline-block; margin-bottom: 12px; border-radius: 99px; padding: 6px 11px; color: #2458d6; background: #e8efff; font-size: 13px; font-weight: 700; }
+    .card { margin-bottom: 18px; border: 1px solid #dbe3f0; border-radius: 18px; padding: 22px; background: white; box-shadow: 0 12px 36px rgba(33, 54, 99, .08); }
+    label { display: grid; gap: 8px; margin-bottom: 18px; font-weight: 700; }
+    input[type="file"], textarea { width: 100%; border: 1px solid #ccd7e8; border-radius: 12px; padding: 12px; color: inherit; background: #f8faff; font: inherit; }
+    textarea { min-height: 120px; resize: vertical; line-height: 1.65; }
+    .preview { display: grid; min-height: 180px; margin-bottom: 18px; place-items: center; overflow: hidden; border: 1px dashed #b9c7dd; border-radius: 14px; background: #f8faff; color: #7a879c; }
+    .preview img { display: none; width: auto; max-width: 100%; height: auto; max-height: 420px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    button { border: 0; border-radius: 11px; padding: 12px 18px; font: inherit; font-weight: 800; cursor: pointer; }
+    .primary { color: white; background: #3567f6; }
+    .secondary { color: #29405f; background: #eaf0f8; }
+    #status { min-height: 24px; margin: 16px 0 0; font-weight: 800; color: #1c7a52; }
+    #pasteTarget { min-height: 150px; border: 2px dashed #a9b8d0; border-radius: 14px; padding: 16px; background: #fbfcff; line-height: 1.7; }
+    #pasteTarget img { display: block; max-width: 100%; max-height: 420px; margin-bottom: 12px; }
+    ol { margin: 0; padding-left: 22px; line-height: 1.9; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="badge">新版功能测试页 · 不连接正式资料</span>
+      <h1>图片＋文字复制测试</h1>
+      <p>此页面使用新版标准答案中心目前的相容复制方式：图片在前，文字在后。</p>
+    </header>
+
+    <section class="card">
+      <label>1. 选择测试图片
+        <input id="imageInput" type="file" accept="image/*">
+      </label>
+      <div class="preview" id="preview"><span>尚未选择图片</span><img id="previewImage" alt="测试图片预览"></div>
+      <label>2. 输入测试文字
+        <textarea id="answerText">您好，这是新版工具的图片＋文字复制测试。图片应显示在前面，这段文字应显示在图片后面。</textarea>
+      </label>
+      <div class="actions">
+        <button class="primary" id="copyBoth" type="button">复制图片＋文字</button>
+        <button class="secondary" id="copyText" type="button">只复制文字</button>
+      </div>
+      <p id="status" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>先在这里测试贴上</h2>
+      <p class="hint">点击下方区域后按 Ctrl＋V。如果这里同时出现图片和文字，再到客服后台测试。</p>
+      <div id="pasteTarget" contenteditable="true">点击这里，然后按 Ctrl＋V</div>
+    </section>
+
+    <section class="card">
+      <h2>测试步骤</h2>
+      <ol>
+        <li>选择与正式工具相同的图片。</li>
+        <li>点击“复制图片＋文字”。</li>
+        <li>先在本页贴上一次，再到客服后台贴上一次。</li>
+        <li>告诉我两边分别出现：图片＋文字、只有图片，或只有文字。</li>
+      </ol>
+    </section>
+  </main>
+
+  <script>
+    const imageInput = document.querySelector("#imageInput");
+    const preview = document.querySelector("#preview");
+    const previewImage = document.querySelector("#previewImage");
+    const answerText = document.querySelector("#answerText");
+    const status = document.querySelector("#status");
+    let imageDataUrl = "";
+
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        imageDataUrl = typeof reader.result === "string" ? reader.result : "";
+        preview.querySelector("span")?.remove();
+        previewImage.src = imageDataUrl;
+        previewImage.style.display = "block";
+        status.textContent = "图片已载入，可以开始测试";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function clipboardHtml(text) {
+      const escapedText = text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("\n", "<br>");
+      return `<div><img src="${imageDataUrl}" alt=""><br><div>${escapedText}</div></div>`;
+    }
+
+    async function copyImageAndText() {
+      const text = answerText.value.trim();
+      if (!imageDataUrl) {
+        status.textContent = "请先选择图片";
+        return;
+      }
+      if (!text) {
+        status.textContent = "请先输入测试文字";
+        return;
+      }
+
+      const html = clipboardHtml(text);
+      const helper = document.createElement("div");
+      helper.contentEditable = "true";
+      helper.style.position = "fixed";
+      helper.style.left = "-9999px";
+      helper.innerHTML = html;
+      document.body.appendChild(helper);
+
+      let copiedRich = false;
+      const selection = window.getSelection();
+      try {
+        const helperImage = helper.querySelector("img");
+        if (helperImage && !helperImage.complete) {
+          await new Promise((resolve, reject) => {
+            helperImage.onload = resolve;
+            helperImage.onerror = reject;
+          });
+        }
+        const range = document.createRange();
+        range.selectNodeContents(helper);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        copiedRich = document.execCommand("copy");
+      } finally {
+        selection?.removeAllRanges();
+        helper.remove();
+      }
+
+      if (!copiedRich) {
+        if (!navigator.clipboard || typeof ClipboardItem === "undefined") throw new Error("浏览器不支持富文字复制");
+        await navigator.clipboard.write([new ClipboardItem({
+          "text/html": new Blob([html], { type: "text/html" }),
+          "text/plain": new Blob([text], { type: "text/plain" })
+        })]);
+      }
+      status.textContent = copiedRich
+        ? "复制成功：已使用初版相容方式，请贴上测试"
+        : "复制成功：已使用浏览器备用方式，请贴上测试";
+    }
+
+    document.querySelector("#copyBoth").addEventListener("click", () => {
+      copyImageAndText().catch(() => {
+        status.textContent = "复制失败，请确认浏览器已允许使用剪贴簿";
+      });
+    });
+    document.querySelector("#copyText").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(answerText.value);
+      status.textContent = "文字已复制";
+    });
+  </script>
+</body>
+</html>
