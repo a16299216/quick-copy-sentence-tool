@@ -101,6 +101,26 @@
       return `<div><img src="${imageDataUrl}" alt=""><br><div>${escapedText}</div></div>`;
     }
 
+    function loadImage(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = dataUrl;
+      });
+    }
+
+    async function imageDataToPngBlob(dataUrl) {
+      const image = await loadImage(dataUrl);
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      canvas.getContext("2d")?.drawImage(image, 0, 0);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!blob) throw new Error("图片转换失败");
+      return blob;
+    }
+
     async function copyImageAndText() {
       const text = answerText.value.trim();
       if (!imageDataUrl) {
@@ -113,43 +133,51 @@
       }
 
       const html = clipboardHtml(text);
-      const helper = document.createElement("div");
-      helper.contentEditable = "true";
-      helper.style.position = "fixed";
-      helper.style.left = "-9999px";
-      helper.innerHTML = html;
-      document.body.appendChild(helper);
+      let copiedBoth = false;
+      let copyMethod = "";
 
-      let copiedRich = false;
-      const selection = window.getSelection();
-      try {
-        const helperImage = helper.querySelector("img");
-        if (helperImage && !helperImage.complete) {
-          await new Promise((resolve, reject) => {
-            helperImage.onload = resolve;
-            helperImage.onerror = reject;
-          });
+      if (navigator.clipboard && typeof ClipboardItem !== "undefined" && window.isSecureContext) {
+        try {
+          const pngBlob = imageDataToPngBlob(imageDataUrl);
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "image/png": pngBlob,
+              "text/html": new Blob([html], { type: "text/html" }),
+              "text/plain": new Blob([text], { type: "text/plain" })
+            })
+          ]);
+          copiedBoth = true;
+          copyMethod = "初版三格式方式";
+        } catch {
+          copiedBoth = false;
         }
-        const range = document.createRange();
-        range.selectNodeContents(helper);
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        copiedRich = document.execCommand("copy");
-      } finally {
-        selection?.removeAllRanges();
-        helper.remove();
       }
 
-      if (!copiedRich) {
-        if (!navigator.clipboard || typeof ClipboardItem === "undefined") throw new Error("浏览器不支持富文字复制");
-        await navigator.clipboard.write([new ClipboardItem({
-          "text/html": new Blob([html], { type: "text/html" }),
-          "text/plain": new Blob([text], { type: "text/plain" })
-        })]);
+      if (!copiedBoth) {
+        try {
+          const helper = document.createElement("div");
+          helper.contentEditable = "true";
+          helper.style.position = "fixed";
+          helper.style.left = "-9999px";
+          helper.innerHTML = html;
+          document.body.appendChild(helper);
+          await loadImage(imageDataUrl);
+          const range = document.createRange();
+          range.selectNodeContents(helper);
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+          copiedBoth = document.execCommand("copy");
+          selection?.removeAllRanges();
+          helper.remove();
+          copyMethod = "初版富文字相容方式";
+        } catch {
+          copiedBoth = false;
+        }
       }
-      status.textContent = copiedRich
-        ? "复制成功：已使用初版相容方式，请贴上测试"
-        : "复制成功：已使用浏览器备用方式，请贴上测试";
+
+      if (!copiedBoth) throw new Error("无法复制图片与文字");
+      status.textContent = `复制成功：已使用${copyMethod}，请贴上测试`;
     }
 
     document.querySelector("#copyBoth").addEventListener("click", () => {
