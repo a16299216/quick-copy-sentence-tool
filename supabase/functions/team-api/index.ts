@@ -102,8 +102,13 @@ async function savePublished(raw: Answer, profile: Profile, action = "发布答�
     await audit(profile, action, "answer", answer.id!, before, data);
     return data;
   }
-  const { data, error } = await service.from("answer_items").insert({ ...answer, created_by: profile.id, updated_by: profile.id }).select().single();
-  if (error) throw error;
+  const { id: _generatedId, ...insertableAnswer } = answer;
+  const { data, error } = await service.from("answer_items").insert({
+    ...insertableAnswer,
+    created_by: profile.id,
+    updated_by: profile.id,
+  }).select().single();
+  if (error) throw new Error(error.message);
   const { data: orders } = await service.from("problem_orders").select("sort_order").order("sort_order", { ascending: false }).limit(1);
   await service.from("problem_orders").upsert({ problem_code: answer.problem_code, sort_order: (orders?.[0]?.sort_order || 0) + 1 }, { onConflict: "problem_code", ignoreDuplicates: true });
   await audit(profile, action, "answer", data.id, null, data);
@@ -267,7 +272,11 @@ Deno.serve(async (req: Request) => {
     const body = req.method === "GET" ? { action: "getData" } : await req.json();
     return await handleJson(req, profile, body);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "操作失败";
+    const message = error instanceof Error
+      ? error.message
+      : error && typeof error === "object" && "message" in error
+        ? String(error.message)
+        : "操作失败";
     if (message === "UNAUTHORIZED") return json({ error: "登录已失效" }, 401);
     if (message === "FORBIDDEN") return json({ error: "没有操作权限" }, 403);
     return json({ error: message }, 400);
