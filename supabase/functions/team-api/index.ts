@@ -422,9 +422,19 @@ async function getData(profile: Profile) {
         .order("created_at", { ascending: false })
         .limit(150),
     ]);
+    const userNameById = new Map(
+      (users || []).map((user) => [user.id, user.display_name]),
+    );
+    const draftsWithNames = (drafts || []).map((draft) => ({
+      ...draft,
+      created_by_name: userNameById.get(draft.created_by) || "未知账号",
+      reviewed_by_name: draft.reviewed_by
+        ? userNameById.get(draft.reviewed_by) || "未知账号"
+        : null,
+    }));
     Object.assign(payload, {
       users,
-      drafts,
+      drafts: draftsWithNames,
       all_announcements: allAnnouncements,
       deleted_items: deleted,
       history,
