@@ -1,119 +1,2695 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>标准答案中心</title>
-  <style>
-    :root{--primary:#3568f4;--primary2:#5b7df7;--bg:#eef3fb;--panel:#fff;--soft:#f6f8fc;--line:#d9e1ef;--text:#11213c;--muted:#6b7890;--danger:#dc3d4f;--shadow:0 16px 46px rgba(24,44,84,.14)}*{box-sizing:border-box}body{margin:0;font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;color:var(--text);background:var(--bg)}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 20% 10%,#dce7ff,transparent 32%),linear-gradient(145deg,#eef4ff,#f7f9fd)}.login-card{width:min(430px,94vw);padding:34px;border:1px solid var(--line);border-radius:22px;background:var(--panel);box-shadow:var(--shadow)}.brand{display:flex;align-items:center;gap:12px}.brand-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;color:#fff;background:linear-gradient(135deg,var(--primary),#7457ef);font-weight:900}.login h1{margin:22px 0 7px;font-size:28px}.login p{margin:0 0 22px;color:var(--muted)}.login label{display:grid;gap:7px;margin:13px 0;color:var(--muted);font-size:13px}.field{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;color:var(--text);background:var(--soft);outline:0}.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(53,104,244,.12)}.primary{border:0!important;color:#fff!important;background:var(--primary)!important}.login button{width:100%;margin-top:12px;border:0;border-radius:11px;padding:12px}.error{min-height:21px;margin-top:10px;color:var(--danger);font-size:13px}.shell{min-height:100vh;display:grid;grid-template-rows:68px 1fr}.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--line);background:var(--panel)}.top-actions{display:flex;align-items:center;gap:9px}.top-actions button,.ghost{border:1px solid var(--line);border-radius:9px;padding:8px 12px;color:var(--text);background:var(--panel)}.avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;color:#fff;background:var(--primary);font-weight:800}.workspace{display:grid;grid-template-columns:300px 330px minmax(420px,1fr);min-height:0}.problem-pane,.choice-pane,.answer-pane{min-width:0;border-right:1px solid var(--line);background:var(--panel)}.problem-pane{padding:18px;background:var(--soft)}.search{display:flex;align-items:center;gap:8px;margin-bottom:14px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--panel)}.search input{width:100%;border:0;outline:0;background:transparent}.pane-title{display:flex;justify-content:space-between;margin:10px 4px;color:var(--muted);font-size:13px}.problem-list{display:grid;gap:7px;max-height:calc(100vh - 160px);overflow:auto}.problem{display:grid;grid-template-columns:32px 1fr;gap:9px;border:1px solid transparent;border-radius:11px;padding:11px;text-align:left;color:var(--text);background:transparent}.problem.active{border-color:#c9d7ff;background:#e5ecff}.problem b:first-child{color:var(--primary);font-size:17px}.problem span{display:grid;gap:3px}.problem small{color:var(--muted)}.choice-pane{padding:26px 24px}.current-label{color:var(--muted);font-size:12px}.choice-pane h2{margin:8px 0 22px}.choice-block{padding:20px 0;border-top:1px solid var(--line)}.choice-head{display:flex;align-items:center;gap:10px;margin-bottom:13px}.choice-head b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#fff;background:var(--primary)}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid var(--line);border-radius:999px;padding:9px 14px;color:var(--text);background:var(--panel)}.chip.active{border-color:var(--primary);color:#fff;background:var(--primary)}.answer-pane{padding:28px;overflow:auto}.answer-card{max-width:860px;margin:auto;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 8px 28px rgba(23,42,77,.08);overflow:hidden}.answer-meta{padding:20px 24px;border-bottom:1px solid var(--line)}.answer-meta small{color:var(--muted)}.answer-meta h2{margin:8px 0 0}.answer-body{padding:24px}.answer-image{display:block;max-width:min(100%,620px);max-height:520px;margin:0 auto 22px;border-radius:12px;object-fit:contain}.answer-text{white-space:pre-wrap;line-height:1.8}.copy-actions{display:flex;gap:10px;margin-top:22px}.copy-actions button{border:1px solid var(--line);border-radius:10px;padding:10px 15px;color:var(--text);background:var(--panel)}.empty{display:grid;place-items:center;min-height:300px;color:var(--muted)}.admin{position:fixed;inset:0;z-index:50;overflow:auto;background:var(--bg)}.admin-head{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--panel)}.admin-head h2{margin:0}.admin-tabs{display:flex;gap:7px;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--panel)}.admin-tabs button{border:1px solid var(--line);border-radius:9px;padding:8px 12px;color:var(--text);background:var(--panel)}.admin-tabs button.active{color:#fff;background:var(--primary)}.admin-content{padding:22px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.toolbar h3{margin:0}.toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}.toolbar button,.row-actions button,.modal footer button,.order-row button{border:1px solid var(--line);border-radius:8px;padding:8px 11px;color:var(--text);background:var(--panel)}.bulkbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;border:1px solid #bdcdfd;border-radius:10px;padding:10px 12px;background:#edf2ff}.bulkbar span{flex:1;color:var(--muted)}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:13px}th{color:var(--muted);background:var(--soft)}td.answer-cell{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.selected td{background:#f0f4ff}.danger{color:var(--danger)!important}.row-actions{display:flex;gap:6px}.modalback{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:22px;background:rgba(8,18,37,.64)}.modal{width:min(760px,94vw);max-height:92vh;overflow:auto;border-radius:18px;background:var(--panel);box-shadow:var(--shadow)}.modal header,.modal footer{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;border-bottom:1px solid var(--line)}.modal footer{justify-content:flex-end;gap:8px;border-top:1px solid var(--line);border-bottom:0}.modal h2,.modal p{margin:0}.modal p{margin-top:4px;color:var(--muted);font-size:13px}.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}.modal-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px}.wide{grid-column:1/-1}.modal textarea{min-height:120px;resize:vertical}.readonly{color:var(--primary);font-weight:800}.warning{grid-column:1/-1;border:1px solid #f4b23a;border-radius:9px;padding:10px;color:#8a5100;background:#fff9e9}.order-list,.card-list{display:grid;gap:8px;padding:18px}.order-row,.card{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--soft)}.order-row div,.card div{flex:1;display:grid;gap:3px}.order-row small,.card small{color:var(--muted)}.user-form{display:grid;grid-template-columns:1fr 1fr 1fr 150px auto;gap:8px;margin-bottom:15px}.toast{position:fixed;left:50%;bottom:22px;z-index:200;padding:10px 16px;border-radius:999px;color:#fff;background:#172236;opacity:0;transform:translate(-50%,14px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}@media(max-width:1050px){.workspace{grid-template-columns:240px 280px 1fr}.user-form{grid-template-columns:1fr 1fr}}@media(max-width:760px){.workspace{grid-template-columns:1fr}.problem-pane,.choice-pane{border-bottom:1px solid var(--line)}.problem-list{max-height:260px}.modal-grid{grid-template-columns:1fr}.wide{grid-column:auto}.topbar{padding:0 12px}.top-actions span:not(.avatar){display:none}}
-    .user-form{grid-template-columns:1fr 1fr 1fr 150px auto auto}.card>.row-actions{flex:0;display:flex;gap:6px;flex-wrap:wrap}.credential-box{display:grid;gap:10px;padding:20px}.credential-row{display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:center}.credential-row code{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--soft);word-break:break-all}.tag-card{display:grid;grid-template-columns:minmax(180px,1fr) minmax(260px,2fr) auto}.tag-card>div{display:grid;gap:3px}.favorite-active{border-color:#f3b51b!important;color:#8a5700!important;background:#fff8df!important}.list-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:13px 0 10px}.list-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);border-radius:9px;padding:9px;color:var(--text);background:var(--panel)}.list-tabs button.active{border-color:var(--primary);color:#fff;background:var(--primary)}.list-tabs b{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;padding:0 6px;color:inherit;background:rgba(107,120,144,.14);font-size:12px}.list-tabs button.active b{background:rgba(255,255,255,.2)}.favorite-row{display:grid;grid-template-columns:52px 1fr auto;gap:9px;align-items:center;border:1px solid transparent;border-radius:11px;padding:11px;text-align:left;color:var(--text);background:transparent}.favorite-row:hover,.favorite-row.active{border-color:#c9d7ff;background:#e5ecff}.favorite-row>b{color:var(--primary)}.favorite-row span{display:grid;gap:3px;min-width:0}.favorite-row small{color:var(--muted)}.favorite-row>i{color:var(--primary);font-style:normal}.favorite-empty{display:grid;place-items:center;min-height:180px;padding:20px;text-align:center;color:var(--muted)}@media(max-width:760px){.tag-card{grid-template-columns:1fr}}
-    .choice-head b{flex:0 0 28px}.choice-head span{display:grid;gap:3px}.choice-head small{color:var(--muted);font-weight:400}.answer-list-head{max-width:920px;margin:0 auto 14px}.answer-list-head>div{display:flex;align-items:center;justify-content:space-between;gap:12px}.answer-list-head small{color:var(--muted)}.answer-list{display:grid;gap:16px;max-width:920px;margin:auto;padding-bottom:28px}.answer-list .answer-card{max-width:none;margin:0}.answer-card.prioritized{border-color:#9bb3ff;box-shadow:0 10px 30px rgba(53,104,244,.14)}
-    .workspace{height:calc(100vh - 68px);grid-template-columns:260px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.problem-pane{grid-row:1/3;padding:14px 12px}.problem-list{max-height:calc(100vh - 180px)}.choice-pane{grid-column:2;grid-row:1;display:grid;grid-template-columns:180px minmax(220px,1fr) minmax(320px,1.4fr) 80px;align-items:center;gap:18px;padding:10px 18px;border-right:0;border-bottom:1px solid var(--line)}.compact-current{display:grid;gap:3px}.compact-current small,.compact-filter-group small{color:var(--muted);font-size:11px}.compact-current h2{margin:0;font-size:19px}.compact-current h2 span{color:var(--primary)}.compact-filter-group{display:grid;gap:6px}.compact-filter-group .chips{gap:5px}.compact-filter-group .chip{padding:6px 10px;font-size:12px}.compact-total{display:grid;justify-items:center;gap:1px;border-left:1px solid var(--line)}.compact-total b{color:var(--primary);font-size:22px}.compact-total small{color:var(--muted);font-size:10px}.answer-pane{grid-column:2;grid-row:2;padding:12px 16px;border-right:0;background:var(--bg)}.answer-groups{display:grid;gap:12px;max-width:none;margin:0;padding-bottom:18px}.answer-group{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--panel)}.answer-group.active{border-color:#a9baff;box-shadow:0 5px 18px rgba(53,104,244,.08)}.answer-group>header{display:flex;height:42px;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line);background:var(--soft)}.answer-group>header>div{display:flex;align-items:center;gap:8px}.answer-group>header span{display:grid;width:24px;height:24px;place-items:center;border-radius:7px;color:#fff;background:var(--primary);font-size:11px}.answer-group>header small{color:var(--muted);font-size:10px}.answer-group>header em{color:var(--primary);font-size:10px;font-style:normal}.answer-row{display:grid;min-height:51px;grid-template-columns:68px 76px minmax(240px,1fr) 42px auto;align-items:center;gap:8px;padding:7px 12px;border-top:1px solid var(--line);font-size:12px}.answer-row:first-child{border-top:0}.answer-row>strong{color:var(--primary)}.answer-platform{display:inline-block;border:1px solid transparent;border-radius:99px;padding:4px 7px;color:#3154c7;text-align:center;background:#e9efff;font-size:11px;white-space:nowrap}.answer-platform:hover,.answer-platform:focus-visible{border-color:#8aa4ff;background:#dfe8ff;outline:0}.answer-platform:active{transform:translateY(1px)}.answer-row-text{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.answer-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px;white-space:nowrap}.answer-row-actions button,.image-preview-button{border:1px solid var(--line);border-radius:6px;padding:5px 7px;color:var(--text);background:var(--panel);font-size:11px}.answer-row-actions .primary{border-color:var(--primary)!important}.image-preview-button{color:var(--muted)}.image-preview-modal{display:block;max-width:100%;max-height:70vh;margin:auto;padding:18px;object-fit:contain}.favorite-active.compact-favorite{border-color:#f3b51b!important}.answer-row.prioritized{background:#f7f9ff}@media(max-width:1050px){.workspace{grid-template-columns:220px minmax(0,1fr)}.choice-pane{grid-template-columns:150px minmax(190px,1fr) minmax(280px,1.3fr) 65px}.answer-row{grid-template-columns:62px 70px minmax(200px,1fr) 38px auto}}
-    .answer-category-bar{display:flex;align-items:center;gap:7px;margin-bottom:14px;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--panel);overflow-x:auto}.answer-category-bar button{display:flex;align-items:center;gap:6px;flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--text);background:var(--panel)}.answer-category-bar button.active{border-color:var(--primary);color:#fff;background:var(--primary)}.answer-category-bar b{min-width:20px;border-radius:99px;padding:2px 6px;color:var(--muted);background:var(--soft);font-size:10px;text-align:center}.answer-category-bar button.active b{color:#fff;background:rgba(255,255,255,.18)}
-    .favorite-row[draggable="true"]{grid-template-columns:24px 52px 1fr auto;cursor:grab}.favorite-row[draggable="true"]::before{content:"⋮⋮";color:#8a98b2;font-weight:900;letter-spacing:-3px;text-align:center}.favorite-row[draggable="true"]:active{cursor:grabbing}.favorite-row.dragging{opacity:.45}.favorite-row.drag-over{border-color:var(--primary);background:#dfe8ff;transform:translateY(-2px)}
-    .answer-platform[data-platform-tone="cash"]{border-color:#0f7a4e;color:#fff;background:#0f7a4e}.answer-platform[data-platform-tone="cash"]:hover,.answer-platform[data-platform-tone="cash"]:focus-visible{border-color:#095f3b;color:#fff;background:#095f3b}.answer-platform[data-platform-tone="board"]{border-color:#7c3aed;color:#fff;background:#7c3aed}.answer-platform[data-platform-tone="board"]:hover,.answer-platform[data-platform-tone="board"]:focus-visible{border-color:#6422c7;color:#fff;background:#6422c7}.answer-platform[data-platform-tone="sports"]{border-color:#0284c7;color:#fff;background:#0284c7}.answer-platform[data-platform-tone="sports"]:hover,.answer-platform[data-platform-tone="sports"]:focus-visible{border-color:#036b9d;color:#fff;background:#036b9d}.answer-platform[data-platform-tone="app"]{border-color:#0d9488;color:#fff;background:#0d9488}.answer-platform[data-platform-tone="app"]:hover,.answer-platform[data-platform-tone="app"]:focus-visible{border-color:#08766d;color:#fff;background:#08766d}
-  </style>
-</head>
-<body>
-  <section id="loginView" class="login">
-    <form id="loginForm" class="login-card">
-      <div class="brand"><div class="brand-icon">答</div><strong>标准答案中心</strong></div>
-      <h1>登录公司工具</h1><p>使用管理员建立的账号与密码</p>
-      <label>账号<input id="loginUser" class="field" autocomplete="username" required></label>
-      <label>密码<input id="loginPassword" class="field" type="password" autocomplete="current-password" required></label>
-      <button class="primary" type="submit">登录</button><div id="loginError" class="error"></div>
-    </form>
-  </section>
-  <main id="appView" class="shell hidden">
-    <header class="topbar"><div class="brand"><div class="brand-icon">答</div><strong>标准答案中心</strong></div><div class="top-actions"><span id="userName"></span><span id="avatar" class="avatar"></span><button id="editorCreateButton" class="hidden">＋ 提出新增</button><button id="myDraftsButton" class="hidden">我的申请</button><button id="adminButton" class="hidden">管理后台</button><button id="logoutButton">退出</button></div></header>
-    <section class="workspace">
-      <aside class="problem-pane"><div class="search">⌕<input id="searchInput" placeholder="搜索问题编号或关键词"></div><div class="list-tabs"><button id="problemsTab" class="active" onclick="app.listMode('problems')">问题列表 <b id="problemCount">0</b></button><button id="favoritesTab" onclick="app.listMode('favorites')">★ 我的常用 <b id="favoriteCount">0</b></button></div><div id="problemList" class="problem-list"></div></aside>
-      <aside id="choicePane" class="choice-pane"></aside><section id="answerPane" class="answer-pane"></section>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>标准答案中心</title>
+    <style>
+      :root {
+        --primary: #3568f4;
+        --primary2: #5b7df7;
+        --bg: #eef3fb;
+        --panel: #fff;
+        --soft: #f6f8fc;
+        --line: #d9e1ef;
+        --text: #11213c;
+        --muted: #6b7890;
+        --danger: #dc3d4f;
+        --shadow: 0 16px 46px rgba(24, 44, 84, 0.14);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, "Microsoft YaHei", system-ui, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .login {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 20% 10%, #dce7ff, transparent 32%),
+          linear-gradient(145deg, #eef4ff, #f7f9fd);
+      }
+      .login-card {
+        width: min(430px, 94vw);
+        padding: 34px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-icon {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), #7457ef);
+        font-weight: 900;
+      }
+      .login h1 {
+        margin: 22px 0 7px;
+        font-size: 28px;
+      }
+      .login p {
+        margin: 0 0 22px;
+        color: var(--muted);
+      }
+      .login label {
+        display: grid;
+        gap: 7px;
+        margin: 13px 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .field {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 12px;
+        color: var(--text);
+        background: var(--soft);
+        outline: 0;
+      }
+      .field:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(53, 104, 244, 0.12);
+      }
+      .primary {
+        border: 0 !important;
+        color: #fff !important;
+        background: var(--primary) !important;
+      }
+      .login button {
+        width: 100%;
+        margin-top: 12px;
+        border: 0;
+        border-radius: 11px;
+        padding: 12px;
+      }
+      .error {
+        min-height: 21px;
+        margin-top: 10px;
+        color: var(--danger);
+        font-size: 13px;
+      }
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: 68px 1fr;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .top-actions button,
+      .ghost {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 8px 12px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .avatar {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        color: #fff;
+        background: var(--primary);
+        font-weight: 800;
+      }
+      .workspace {
+        display: grid;
+        grid-template-columns: 300px 330px minmax(420px, 1fr);
+        min-height: 0;
+      }
+      .problem-pane,
+      .choice-pane,
+      .answer-pane {
+        min-width: 0;
+        border-right: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .problem-pane {
+        padding: 18px;
+        background: var(--soft);
+      }
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 9px 11px;
+        background: var(--panel);
+      }
+      .search input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+      }
+      .pane-title {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .problem-list {
+        display: grid;
+        gap: 7px;
+        max-height: calc(100vh - 160px);
+        overflow: auto;
+      }
+      .problem {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 9px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        padding: 11px;
+        text-align: left;
+        color: var(--text);
+        background: transparent;
+      }
+      .problem.active {
+        border-color: #c9d7ff;
+        background: #e5ecff;
+      }
+      .problem b:first-child {
+        color: var(--primary);
+        font-size: 17px;
+      }
+      .problem span {
+        display: grid;
+        gap: 3px;
+      }
+      .problem small {
+        color: var(--muted);
+      }
+      .choice-pane {
+        padding: 26px 24px;
+      }
+      .current-label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .choice-pane h2 {
+        margin: 8px 0 22px;
+      }
+      .choice-block {
+        padding: 20px 0;
+        border-top: 1px solid var(--line);
+      }
+      .choice-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 13px;
+      }
+      .choice-head b {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        color: #fff;
+        background: var(--primary);
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 9px 14px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .chip.active {
+        border-color: var(--primary);
+        color: #fff;
+        background: var(--primary);
+      }
+      .answer-pane {
+        padding: 28px;
+        overflow: auto;
+      }
+      .answer-card {
+        max-width: 860px;
+        margin: auto;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: 0 8px 28px rgba(23, 42, 77, 0.08);
+        overflow: hidden;
+      }
+      .answer-meta {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .answer-meta small {
+        color: var(--muted);
+      }
+      .answer-meta h2 {
+        margin: 8px 0 0;
+      }
+      .answer-body {
+        padding: 24px;
+      }
+      .answer-image {
+        display: block;
+        max-width: min(100%, 620px);
+        max-height: 520px;
+        margin: 0 auto 22px;
+        border-radius: 12px;
+        object-fit: contain;
+      }
+      .answer-text {
+        white-space: pre-wrap;
+        line-height: 1.8;
+      }
+      .copy-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .copy-actions button {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 15px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .empty {
+        display: grid;
+        place-items: center;
+        min-height: 300px;
+        color: var(--muted);
+      }
+      .admin {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        overflow: auto;
+        background: var(--bg);
+      }
+      .admin-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .admin-head h2 {
+        margin: 0;
+      }
+      .admin-tabs {
+        display: flex;
+        gap: 7px;
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .admin-tabs button {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 8px 12px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .admin-tabs button.active {
+        color: #fff;
+        background: var(--primary);
+      }
+      .admin-content {
+        padding: 22px;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .toolbar h3 {
+        margin: 0;
+      }
+      .toolbar-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .toolbar button,
+      .row-actions button,
+      .modal footer button,
+      .order-row button {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 11px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .bulkbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        border: 1px solid #bdcdfd;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #edf2ff;
+      }
+      .bulkbar span {
+        flex: 1;
+        color: var(--muted);
+      }
+      .tablewrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+      th,
+      td {
+        padding: 11px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+      }
+      th {
+        color: var(--muted);
+        background: var(--soft);
+      }
+      td.answer-cell {
+        max-width: 360px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .selected td {
+        background: #f0f4ff;
+      }
+      .danger {
+        color: var(--danger) !important;
+      }
+      .row-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .modalback {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        padding: 22px;
+        background: rgba(8, 18, 37, 0.64);
+      }
+      .modal {
+        width: min(760px, 94vw);
+        max-height: 92vh;
+        overflow: auto;
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+      .modal header,
+      .modal footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .modal footer {
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+      }
+      .modal h2,
+      .modal p {
+        margin: 0;
+      }
+      .modal p {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .modal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        padding: 20px;
+      }
+      .modal-grid label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .wide {
+        grid-column: 1/-1;
+      }
+      .modal textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .readonly {
+        color: var(--primary);
+        font-weight: 800;
+      }
+      .warning {
+        grid-column: 1/-1;
+        border: 1px solid #f4b23a;
+        border-radius: 9px;
+        padding: 10px;
+        color: #8a5100;
+        background: #fff9e9;
+      }
+      .order-list,
+      .card-list {
+        display: grid;
+        gap: 8px;
+        padding: 18px;
+      }
+      .order-row,
+      .card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        background: var(--soft);
+      }
+      .order-row div,
+      .card div {
+        flex: 1;
+        display: grid;
+        gap: 3px;
+      }
+      .order-row small,
+      .card small {
+        color: var(--muted);
+      }
+      .user-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 150px auto;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        z-index: 200;
+        padding: 10px 16px;
+        border-radius: 999px;
+        color: #fff;
+        background: #172236;
+        opacity: 0;
+        transform: translate(-50%, 14px);
+        transition: 0.2s;
+        pointer-events: none;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      @media (max-width: 1050px) {
+        .workspace {
+          grid-template-columns: 240px 280px 1fr;
+        }
+        .user-form {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 760px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+        .problem-pane,
+        .choice-pane {
+          border-bottom: 1px solid var(--line);
+        }
+        .problem-list {
+          max-height: 260px;
+        }
+        .modal-grid {
+          grid-template-columns: 1fr;
+        }
+        .wide {
+          grid-column: auto;
+        }
+        .topbar {
+          padding: 0 12px;
+        }
+        .top-actions span:not(.avatar) {
+          display: none;
+        }
+      }
+      .user-form {
+        grid-template-columns: 1fr 1fr 1fr 150px auto auto;
+      }
+      .card > .row-actions {
+        flex: 0;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .credential-box {
+        display: grid;
+        gap: 10px;
+        padding: 20px;
+      }
+      .credential-row {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+      .credential-row code {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--soft);
+        word-break: break-all;
+      }
+      .tag-card {
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) minmax(260px, 2fr) auto;
+      }
+      .tag-card > div {
+        display: grid;
+        gap: 3px;
+      }
+      .favorite-active {
+        border-color: #f3b51b !important;
+        color: #8a5700 !important;
+        background: #fff8df !important;
+      }
+      .list-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin: 13px 0 10px;
+      }
+      .list-tabs button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .list-tabs button.active {
+        border-color: var(--primary);
+        color: #fff;
+        background: var(--primary);
+      }
+      .list-tabs b {
+        display: inline-grid;
+        place-items: center;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        padding: 0 6px;
+        color: inherit;
+        background: rgba(107, 120, 144, 0.14);
+        font-size: 12px;
+      }
+      .list-tabs button.active b {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .favorite-row {
+        display: grid;
+        grid-template-columns: 52px 1fr auto;
+        gap: 9px;
+        align-items: center;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        padding: 11px;
+        text-align: left;
+        color: var(--text);
+        background: transparent;
+      }
+      .favorite-row:hover,
+      .favorite-row.active {
+        border-color: #c9d7ff;
+        background: #e5ecff;
+      }
+      .favorite-row > b {
+        color: var(--primary);
+      }
+      .favorite-row span {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+      .favorite-row small {
+        color: var(--muted);
+      }
+      .favorite-row > i {
+        color: var(--primary);
+        font-style: normal;
+      }
+      .favorite-empty {
+        display: grid;
+        place-items: center;
+        min-height: 180px;
+        padding: 20px;
+        text-align: center;
+        color: var(--muted);
+      }
+      @media (max-width: 760px) {
+        .tag-card {
+          grid-template-columns: 1fr;
+        }
+      }
+      .choice-head b {
+        flex: 0 0 28px;
+      }
+      .choice-head span {
+        display: grid;
+        gap: 3px;
+      }
+      .choice-head small {
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .answer-list-head {
+        max-width: 920px;
+        margin: 0 auto 14px;
+      }
+      .answer-list-head > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .answer-list-head small {
+        color: var(--muted);
+      }
+      .answer-list {
+        display: grid;
+        gap: 16px;
+        max-width: 920px;
+        margin: auto;
+        padding-bottom: 28px;
+      }
+      .answer-list .answer-card {
+        max-width: none;
+        margin: 0;
+      }
+      .answer-card.prioritized {
+        border-color: #9bb3ff;
+        box-shadow: 0 10px 30px rgba(53, 104, 244, 0.14);
+      }
+      .workspace {
+        height: calc(100vh - 68px);
+        grid-template-columns: 260px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+      .problem-pane {
+        grid-row: 1/3;
+        padding: 14px 12px;
+      }
+      .problem-list {
+        max-height: calc(100vh - 180px);
+      }
+      .choice-pane {
+        grid-column: 2;
+        grid-row: 1;
+        display: grid;
+        grid-template-columns:
+          180px minmax(220px, 1fr) minmax(320px, 1.4fr)
+          80px;
+        align-items: center;
+        gap: 18px;
+        padding: 10px 18px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .compact-current {
+        display: grid;
+        gap: 3px;
+      }
+      .compact-current small,
+      .compact-filter-group small {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .compact-current h2 {
+        margin: 0;
+        font-size: 19px;
+      }
+      .compact-current h2 span {
+        color: var(--primary);
+      }
+      .compact-filter-group {
+        display: grid;
+        gap: 6px;
+      }
+      .compact-filter-group .chips {
+        gap: 5px;
+      }
+      .compact-filter-group .chip {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      .compact-total {
+        display: grid;
+        justify-items: center;
+        gap: 1px;
+        border-left: 1px solid var(--line);
+      }
+      .compact-total b {
+        color: var(--primary);
+        font-size: 22px;
+      }
+      .compact-total small {
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .answer-pane {
+        grid-column: 2;
+        grid-row: 2;
+        padding: 12px 16px;
+        border-right: 0;
+        background: var(--bg);
+      }
+      .answer-groups {
+        display: grid;
+        gap: 12px;
+        max-width: none;
+        margin: 0;
+        padding-bottom: 18px;
+      }
+      .answer-group {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+      .answer-group.active {
+        border-color: #a9baff;
+        box-shadow: 0 5px 18px rgba(53, 104, 244, 0.08);
+      }
+      .answer-group > header {
+        display: flex;
+        height: 42px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+        border-bottom: 1px solid var(--line);
+        background: var(--soft);
+      }
+      .answer-group > header > div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .answer-group > header span {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border-radius: 7px;
+        color: #fff;
+        background: var(--primary);
+        font-size: 11px;
+      }
+      .answer-group > header small {
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .answer-group > header em {
+        color: var(--primary);
+        font-size: 10px;
+        font-style: normal;
+      }
+      .answer-row {
+        display: grid;
+        min-height: 51px;
+        grid-template-columns: 68px 76px minmax(240px, 1fr) 42px auto;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .answer-row:first-child {
+        border-top: 0;
+      }
+      .answer-row > strong {
+        color: var(--primary);
+      }
+      .answer-platform {
+        display: inline-block;
+        border: 1px solid transparent;
+        border-radius: 99px;
+        padding: 4px 7px;
+        color: #3154c7;
+        text-align: center;
+        background: #e9efff;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .answer-platform:hover,
+      .answer-platform:focus-visible {
+        border-color: #8aa4ff;
+        background: #dfe8ff;
+        outline: 0;
+      }
+      .answer-platform:active {
+        transform: translateY(1px);
+      }
+      .answer-row-text {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .answer-row-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        white-space: nowrap;
+      }
+      .answer-row-actions button,
+      .image-preview-button {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 5px 7px;
+        color: var(--text);
+        background: var(--panel);
+        font-size: 11px;
+      }
+      .answer-row-actions .primary {
+        border-color: var(--primary) !important;
+      }
+      .image-preview-button {
+        color: var(--muted);
+      }
+      .image-preview-modal {
+        display: block;
+        max-width: 100%;
+        max-height: 70vh;
+        margin: auto;
+        padding: 18px;
+        object-fit: contain;
+      }
+      .favorite-active.compact-favorite {
+        border-color: #f3b51b !important;
+      }
+      .answer-row.prioritized {
+        background: #f7f9ff;
+      }
+      @media (max-width: 1050px) {
+        .workspace {
+          grid-template-columns: 220px minmax(0, 1fr);
+        }
+        .choice-pane {
+          grid-template-columns:
+            150px minmax(190px, 1fr) minmax(280px, 1.3fr)
+            65px;
+        }
+        .answer-row {
+          grid-template-columns: 62px 70px minmax(200px, 1fr) 38px auto;
+        }
+      }
+      .answer-category-bar {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 14px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: var(--panel);
+        overflow-x: auto;
+      }
+      .answer-category-bar button {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 11px;
+        color: var(--text);
+        background: var(--panel);
+      }
+      .answer-category-bar button.active {
+        border-color: var(--primary);
+        color: #fff;
+        background: var(--primary);
+      }
+      .answer-category-bar b {
+        min-width: 20px;
+        border-radius: 99px;
+        padding: 2px 6px;
+        color: var(--muted);
+        background: var(--soft);
+        font-size: 10px;
+        text-align: center;
+      }
+      .answer-category-bar button.active b {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.18);
+      }
+      .favorite-row[draggable="true"] {
+        grid-template-columns: 24px 52px 1fr auto;
+        cursor: grab;
+      }
+      .favorite-row[draggable="true"]::before {
+        content: "⋮⋮";
+        color: #8a98b2;
+        font-weight: 900;
+        letter-spacing: -3px;
+        text-align: center;
+      }
+      .favorite-row[draggable="true"]:active {
+        cursor: grabbing;
+      }
+      .favorite-row.dragging {
+        opacity: 0.45;
+      }
+      .favorite-row.drag-over {
+        border-color: var(--primary);
+        background: #dfe8ff;
+        transform: translateY(-2px);
+      }
+      .answer-platform[data-platform-tone="cash"] {
+        border-color: #0f7a4e;
+        color: #fff;
+        background: #0f7a4e;
+      }
+      .answer-platform[data-platform-tone="cash"]:hover,
+      .answer-platform[data-platform-tone="cash"]:focus-visible {
+        border-color: #095f3b;
+        color: #fff;
+        background: #095f3b;
+      }
+      .answer-platform[data-platform-tone="board"] {
+        border-color: #7c3aed;
+        color: #fff;
+        background: #7c3aed;
+      }
+      .answer-platform[data-platform-tone="board"]:hover,
+      .answer-platform[data-platform-tone="board"]:focus-visible {
+        border-color: #6422c7;
+        color: #fff;
+        background: #6422c7;
+      }
+      .answer-platform[data-platform-tone="sports"] {
+        border-color: #0284c7;
+        color: #fff;
+        background: #0284c7;
+      }
+      .answer-platform[data-platform-tone="sports"]:hover,
+      .answer-platform[data-platform-tone="sports"]:focus-visible {
+        border-color: #036b9d;
+        color: #fff;
+        background: #036b9d;
+      }
+      .answer-platform[data-platform-tone="app"] {
+        border-color: #0d9488;
+        color: #fff;
+        background: #0d9488;
+      }
+      .answer-platform[data-platform-tone="app"]:hover,
+      .answer-platform[data-platform-tone="app"]:focus-visible {
+        border-color: #08766d;
+        color: #fff;
+        background: #08766d;
+      }
+      .announcement-button {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .announcement-button b {
+        display: grid;
+        min-width: 20px;
+        height: 20px;
+        place-items: center;
+        border-radius: 999px;
+        padding: 0 6px;
+        color: #fff;
+        background: var(--danger);
+        font-size: 11px;
+      }
+      .announcement-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        background: rgba(8, 18, 37, 0.32);
+      }
+      .announcement-drawer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(430px, 94vw);
+        height: 100%;
+        overflow: auto;
+        border-left: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: -18px 0 45px rgba(24, 44, 84, 0.18);
+      }
+      .announcement-drawer > header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .announcement-drawer > header h2 {
+        margin: 0;
+      }
+      .announcement-list {
+        display: grid;
+        gap: 10px;
+        padding: 15px;
+      }
+      .announcement-item {
+        display: grid;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        background: var(--soft);
+      }
+      .announcement-item.unread {
+        border-color: #9bb3ff;
+        background: #f2f5ff;
+      }
+      .announcement-item header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .announcement-item header strong {
+        flex: 1;
+      }
+      .announcement-item p {
+        margin: 0;
+        white-space: pre-wrap;
+        line-height: 1.6;
+      }
+      .announcement-item img {
+        width: 100%;
+        max-height: 260px;
+        border-radius: 9px;
+        object-fit: contain;
+        background: #fff;
+      }
+      .announcement-item small {
+        color: var(--muted);
+      }
+      .search-summary {
+        margin: -5px 4px 10px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .search-clear {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 6px 9px;
+        color: var(--primary);
+        background: var(--panel);
+      }
+      .answer-row.search-hit {
+        background: #fff8d9;
+        box-shadow: inset 4px 0 #f3b51b;
+      }
+      .draft-card {
+        align-items: flex-start;
+      }
+      .draft-card .draft-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .draft-card .draft-actions button {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 7px 9px;
+        background: var(--panel);
+      }
+      .diff-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .diff-box section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px;
+        background: #fff;
+      }
+      .diff-box small {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .announcement-admin-card {
+        align-items: flex-start;
+      }
+      .announcement-admin-card img {
+        width: 90px;
+        height: 70px;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #fff;
+      }
+      @media (max-width: 760px) {
+        .diff-box {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section id="loginView" class="login">
+      <form id="loginForm" class="login-card">
+        <div class="brand">
+          <div class="brand-icon">答</div>
+          <strong>标准答案中心</strong>
+        </div>
+        <h1>登录公司工具</h1>
+        <p>使用管理员建立的账号与密码</p>
+        <label
+          >账号<input
+            id="loginUser"
+            class="field"
+            autocomplete="username"
+            required
+        /></label>
+        <label
+          >密码<input
+            id="loginPassword"
+            class="field"
+            type="password"
+            autocomplete="current-password"
+            required
+        /></label>
+        <button class="primary" type="submit">登录</button>
+        <div id="loginError" class="error"></div>
+      </form>
     </section>
-  </main>
-  <section id="adminView" class="admin hidden"><header class="admin-head"><h2>管理后台</h2><button class="ghost" onclick="app.closeAdmin()">返回标准答案中心</button></header><nav id="adminTabs" class="admin-tabs"></nav><div id="adminContent" class="admin-content"></div></section>
-  <div id="modalRoot"></div><div id="toast" class="toast"></div>
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const SB_URL="https://ehunehldizwnissqjnmo.supabase.co";
-    const SB_KEY="sb_publishable_V2SulLXaBuXNVAOuPwR6kQ_FlN0w7dM";
-    const API=SB_URL+"/functions/v1/team-api";
-    const supabase=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-    const state={data:null,query:"",problem:null,situation:null,platform:null,listMode:"problems",adminTab:"answers",adminProblem:"all",selected:new Set(),editor:null,image:null,dragFavoriteId:null,suppressFavoriteClick:false};
-    const $=id=>document.getElementById(id); const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    const usernameEmail=u=>u.trim().toLowerCase()+"@team-answer.local";
-    function notify(message){const t=$("toast");t.textContent=message;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
-    async function session(){return (await supabase.auth.getSession()).data.session}
-    async function request(body=null,form=null){const s=await session();if(!s)throw new Error("登录已失效");const options={method:body||form?"POST":"GET",headers:{apikey:SB_KEY,Authorization:"Bearer "+s.access_token}};if(body){options.headers["content-type"]="application/json";options.body=JSON.stringify(body)}if(form)options.body=form;const r=await fetch(API,options);const data=await r.json();if(r.status===401){await supabase.auth.signOut();showLogin();throw new Error("登录已失效")}if(!r.ok)throw new Error(data.error||"操作失败");return data}
-    async function load(){state.data=await request();const codes=new Set(state.data.items.map(x=>x.problem_code));if(!codes.has(state.problem))state.problem=state.data.items[0]?.problem_code||null;render();if(!$("adminView").classList.contains("hidden"))renderAdmin()}
-    function problems(applySearch=true){const map=new Map();for(const item of state.data?.items||[]){if(!map.has(item.problem_code))map.set(item.problem_code,{code:item.problem_code,title:item.problem_title,search_tags:item.search_tags||[],items:[]});map.get(item.problem_code).items.push(item)}const q=applySearch?state.query.trim().toLowerCase():"";return [...map.values()].filter(p=>!q||(p.code+" "+p.title+" "+p.search_tags.join(" ")+" "+p.items.map(i=>i.situation_label+" "+(i.platform||"")+" "+i.answer_text).join(" ")).toLowerCase().includes(q))}
-    function orderAnswers(items){return [...items].sort((a,b)=>{const situationRank=x=>state.situation?(x.situation_label===state.situation?0:1):0,platformRank=x=>state.platform?(x.platform===state.platform?0:1):0;return situationRank(a)-situationRank(b)||platformRank(a)-platformRank(b)||String(a.answer_code).localeCompare(String(b.answer_code),'zh-CN',{numeric:true})})}
-    function current(){const ps=problems(state.listMode==='problems');const p=ps.find(x=>x.code===state.problem)||ps[0];if(!p)return{};state.problem=p.code;const situations=[...new Set(p.items.map(i=>i.situation_label))];if(state.situation&&!situations.includes(state.situation))state.situation=null;const platformItems=state.situation?p.items.filter(i=>i.situation_label===state.situation):p.items,platforms=[...new Set(platformItems.map(i=>i.platform).filter(Boolean))];if(state.platform&&!platforms.includes(state.platform))state.platform=null;const orderedItems=orderAnswers(p.items);return{p,situations,items:p.items,platforms,orderedItems,answer:orderedItems[0]}}
-    function favoriteItems(applySearch=true){const byId=new Map((state.data?.items||[]).map(x=>[Number(x.id),x])),q=applySearch?state.query.trim().toLowerCase():'';return (state.data?.favorites||[]).map(f=>byId.get(Number(f.answer_id))).filter(a=>a&&(!q||(a.answer_code+' '+a.problem_title+' '+a.situation_label+' '+(a.platform||'')+' '+a.answer_text).toLowerCase().includes(q)))}
-    function render(){if(!state.data)return;const isEditor=state.data.user.role==="editor",isAdmin=state.data.user.role==="admin",favoriteIds=new Set((state.data.favorites||[]).map(x=>Number(x.answer_id))),ps=problems(state.listMode==='problems'),favorites=favoriteItems();$("userName").textContent=state.data.user.display_name;$("avatar").textContent=state.data.user.display_name.slice(0,1);$("problemCount").textContent=problems(false).length;$("favoriteCount").textContent=favoriteIds.size;$("problemsTab").classList.toggle("active",state.listMode==='problems');$("favoritesTab").classList.toggle("active",state.listMode==='favorites');$("searchInput").placeholder=state.listMode==='favorites'?'搜索常用回答':'搜索问题编号或关键词';$("editorCreateButton").classList.toggle("hidden",!isEditor);$("myDraftsButton").classList.toggle("hidden",!isEditor);$("adminButton").classList.toggle("hidden",!isAdmin);const c=current(),activeAnswerId=Number(c.answer?.id);$("problemList").innerHTML=state.listMode==='problems'?ps.map(p=>`<button class="problem ${p.code===state.problem?'active':''}" onclick="app.problem('${esc(p.code)}')"><b>${esc(p.code)}</b><span><strong>${esc(p.title)}</strong><small>${new Set(p.items.map(i=>i.situation_label)).size} 种情况 · ${p.items.length} 笔答案</small></span></button>`).join(""):(favorites.length?favorites.map(a=>`<button class="favorite-row ${Number(a.id)===activeAnswerId?'active':''}" onclick="app.openFavorite(${a.id})"><b>${esc(a.answer_code)}</b><span><strong>${esc(a.problem_title)}</strong><small>${esc(a.situation_label)} · ${esc(a.platform||'通用')}</small></span><i>›</i></button>`).join(''):'<div class="favorite-empty">还没有常用回答<br>请在答案页面点击“加入常用”</div>');if(!c.p){$("choicePane").innerHTML='<div class="empty">没有答案</div>';$("answerPane").innerHTML='';return}$("choicePane").innerHTML=`<div class="compact-current"><small>当前问题</small><h2><span>${esc(c.p.code)}</span>｜${esc(c.p.title)}</h2></div><div class="compact-filter-group"><small>情况（点击后整组置顶）</small><div class="chips">${c.situations.map(s=>`<button class="chip ${s===state.situation?'active':''}" onclick="app.situation('${esc(s)}')">${esc(s)}</button>`).join("")}</div></div>${c.platforms.length?`<div class="compact-filter-group"><small>平台（点击后优先排列）</small><div class="chips">${c.platforms.map(p=>`<button class="chip ${p===state.platform?'active':''}" onclick="app.platform('${esc(p)}')">${esc(p)}</button>`).join("")}</div></div>`:'<div></div>'}<div class="compact-total"><b>${c.orderedItems.length}</b><small>全部答案</small></div>`;const groups=[...c.situations].sort((a,b)=>state.situation===a?-1:state.situation===b?1:0).map(s=>({situation:s,items:c.orderedItems.filter(i=>i.situation_label===s)}));$("answerPane").innerHTML=c.orderedItems.length?`<div class="answer-groups">${groups.map((group,groupIndex)=>`<section class="answer-group ${state.situation===group.situation?'active':''}"><header><div><span>${groupIndex+1}</span><strong>${esc(group.situation)}</strong><small>${group.items.length} 笔答案</small></div><em>${state.situation===group.situation?'已置顶':''}</em></header><div>${group.items.map((a,index)=>{const isFavorite=favoriteIds.has(Number(a.id));return `<article class="answer-row ${index===0&&state.platform&&a.platform===state.platform?'prioritized':''}"><strong>${esc(a.answer_code)}</strong><button class="answer-platform" title="点击复制图片＋文字" onclick="app.copyBoth(${a.id})">${esc(a.platform||'通用')}</button><p class="answer-row-text" title="${esc(a.answer_text)}">${esc(a.answer_text)}</p>${a.image_url?`<button class="image-preview-button" title="查看附图" onclick="app.previewImage(${a.id})">▧</button>`:'<span></span>'}<div class="answer-row-actions"><button onclick="app.copyText(${a.id})">复制</button>${a.image_url?`<button class="primary" onclick="app.copyBoth(${a.id})">图文</button>`:""}<button class="compact-favorite ${isFavorite?'favorite-active':''}" title="${isFavorite?'移出常用':'加入常用'}" onclick="app.toggleFavorite(${a.id})">${isFavorite?'★':'☆'}</button>${isEditor?`<button onclick="app.edit(${a.id})">申请修改</button>`:isAdmin?`<button onclick="app.edit(${a.id})">修改</button>`:""}</div></article>`}).join("")}</div></section>`).join("")}</div>`:'<div class="empty">此问题尚无答案</div>'}
-    function previewImage(id){const a=state.data.items.find(x=>x.id===id);if(!a?.image_url)return notify("此答案没有附图");modal(`<header><div><h2>答案附图</h2><p>${esc(a.answer_code)}｜${esc(a.situation_label)}｜${esc(a.platform||'通用')}</p></div><button onclick="app.closeModal()">×</button></header><img class="image-preview-modal" src="${esc(a.image_url)}" alt="答案附图"><footer><button onclick="app.closeModal()">关闭</button></footer>`)}
-    async function copyText(id){const a=state.data.items.find(x=>x.id===id);await navigator.clipboard.writeText(a.answer_text);notify("文字已复制")}
-    async function copyBoth(id){const a=state.data.items.find(x=>x.id===id);if(!a.image_url)return copyText(id);try{const source=await fetch(a.image_url).then(r=>r.blob());const dataUrl=await new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(source)});const image=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=dataUrl});const canvas=document.createElement("canvas");canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;canvas.getContext("2d").drawImage(image,0,0);const png=await new Promise(ok=>canvas.toBlob(ok,"image/png"));const text=esc(a.answer_text).replace(/\n/g,"<br>");const html=`<div><img src="${dataUrl}"><br><div>${text}</div></div>`;await navigator.clipboard.write([new ClipboardItem({"image/png":png,"text/html":new Blob([html],{type:"text/html"}),"text/plain":new Blob([a.answer_text],{type:"text/plain"})})]);notify("图片＋文字已复制（图片在前）")}catch{await copyText(id);notify("浏览器无法复制图片，已改为复制文字")}}
-    function showLogin(){$("loginView").classList.remove("hidden");$("appView").classList.add("hidden");$("adminView").classList.add("hidden")}
-    function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden")}
-    function openAdmin(){state.adminTab="answers";state.adminProblem="all";state.selected.clear();$("adminView").classList.remove("hidden");renderAdmin()}
-    function closeAdmin(){$("adminView").classList.add("hidden");render()}
-    async function toggleFavorite(id){try{const result=await request({action:'toggleFavorite',answer_id:id});await load();notify(result.favorite?'已加入常用':'已移除常用')}catch(e){notify(e.message)}}
-    function enableFavoriteSorting(){const rows=[...$("problemList").querySelectorAll('.favorite-row')],items=favoriteItems();rows.forEach((row,index)=>{const answer=items[index],enabled=!state.query.trim();if(!answer)return;row.draggable=enabled;row.dataset.favoriteId=String(answer.id);row.title=enabled?'拖动可调整常用顺序':'清除搜索内容后可调整顺序';row.ondragstart=event=>favoriteDragStart(event,answer.id);row.ondragover=event=>favoriteDragOver(event,answer.id);row.ondragleave=event=>event.currentTarget.classList.remove('drag-over');row.ondrop=event=>favoriteDrop(event,answer.id);row.ondragend=favoriteDragEnd})}
-    function favoriteDragStart(event,id){if(state.query.trim()){event.preventDefault();return}state.dragFavoriteId=Number(id);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',String(id));event.currentTarget.classList.add('dragging')}
-    function favoriteDragOver(event,id){if(!state.dragFavoriteId||Number(id)===state.dragFavoriteId)return;event.preventDefault();event.dataTransfer.dropEffect='move';event.currentTarget.classList.add('drag-over')}
-    function favoriteDragEnd(){state.dragFavoriteId=null;state.suppressFavoriteClick=true;document.querySelectorAll('.favorite-row.dragging,.favorite-row.drag-over').forEach(row=>row.classList.remove('dragging','drag-over'));setTimeout(()=>{state.suppressFavoriteClick=false},80)}
-    async function favoriteDrop(event,targetId){event.preventDefault();event.stopPropagation();const sourceId=Number(state.dragFavoriteId),destinationId=Number(targetId);document.querySelectorAll('.favorite-row.dragging,.favorite-row.drag-over').forEach(row=>row.classList.remove('dragging','drag-over'));if(!sourceId||sourceId===destinationId)return;const previous=(state.data.favorites||[]).map(item=>({...item})),order=previous.map(item=>Number(item.answer_id)),from=order.indexOf(sourceId),to=order.indexOf(destinationId);if(from<0||to<0)return;order.splice(to,0,order.splice(from,1)[0]);const byId=new Map(previous.map(item=>[Number(item.answer_id),item]));state.data.favorites=order.map((answer_id,index)=>({...byId.get(answer_id),answer_id,sort_order:index+1}));state.dragFavoriteId=null;render();try{await request({action:'reorderFavorites',answer_ids:order});notify('常用顺序已保存')}catch(e){state.data.favorites=previous;render();notify(e.message)}}
-    function openFavorite(id){if(state.suppressFavoriteClick)return;const a=(state.data?.items||[]).find(x=>Number(x.id)===Number(id));if(!a){notify('这笔答案目前无法使用');return}state.query='';$("searchInput").value='';state.problem=a.problem_code;state.situation=a.situation_label;state.platform=a.platform||null;render()}
-    function applyPlatformTones(){const tones={'现金':'cash','棋牌':'board','体育':'sports','棋牌APP':'app'};$("answerPane").querySelectorAll('.answer-platform').forEach(button=>{const tone=tones[button.textContent.trim()];if(tone)button.dataset.platformTone=tone;else delete button.dataset.platformTone})}
-    function listMode(mode){state.listMode=mode;state.query='';$("searchInput").value='';render()}
-    const adminTabs=[['answers','答案管理'],['tags','搜索标注'],['drafts','待审核'],['users','账号权限'],['recycle','回收站'],['history','版本历史'],['audit','操作记录']];
-    function adminAnswerItems(){const items=state.data?.items||[];return state.adminProblem==='all'?items:items.filter(i=>i.problem_code===state.adminProblem)}
-    function setAdminProblem(code){state.adminProblem=code;state.selected.clear();renderAdmin()}
-    function renderAdmin(){const d=state.data;$("adminTabs").innerHTML=adminTabs.map(([k,l])=>`<button class="${state.adminTab===k?'active':''}" onclick="app.tab('${k}')">${l}</button>`).join("");const root=$("adminContent");if(state.adminTab==='answers'){const ps=problems(false);if(state.adminProblem!=='all'&&!ps.some(p=>p.code===state.adminProblem))state.adminProblem='all';const visibleItems=adminAnswerItems(),allVisibleSelected=visibleItems.length&&visibleItems.every(i=>state.selected.has(i.id));root.innerHTML=`<div class="toolbar"><div><h3>标准答案资料</h3><small>先选择问题分类，再查看或批量整理答案</small></div><div class="toolbar-actions"><button onclick="app.orderModal()">调整问题顺序</button><button class="primary" onclick="app.edit()">＋ 新增答案</button></div></div><div class="answer-category-bar"><button class="${state.adminProblem==='all'?'active':''}" onclick="app.adminProblem('all')">全部 <b>${d.items.length}</b></button>${ps.map(p=>`<button class="${state.adminProblem===p.code?'active':''}" onclick="app.adminProblem('${esc(p.code)}')">${esc(p.code)}｜${esc(p.title)} <b>${p.items.length}</b></button>`).join('')}</div>${state.selected.size?`<div class="bulkbar"><b>已选择 ${state.selected.size} 笔</b><span>可统一修改问题分类、情况或平台</span><button class="primary" onclick="app.bulkModal()">批量整理</button><button onclick="app.clearSelection()">取消</button></div>`:""}<div class="tablewrap"><table><thead><tr><th><input type="checkbox" ${allVisibleSelected?'checked':''} ${visibleItems.length?'':'disabled'} onchange="app.selectAll(this.checked)"></th><th>答案编号</th><th>问题</th><th>情况</th><th>平台</th><th>标准答案</th><th>操作</th></tr></thead><tbody>${visibleItems.length?visibleItems.map(i=>`<tr class="${state.selected.has(i.id)?'selected':''}"><td><input type="checkbox" ${state.selected.has(i.id)?'checked':''} onchange="app.select(${i.id},this.checked)"></td><td><b>${esc(i.answer_code)}</b></td><td>${esc(i.problem_code)}｜${esc(i.problem_title)}</td><td>${esc(i.situation_label)}</td><td>${esc(i.platform||'通用')}</td><td class="answer-cell">${esc(i.answer_text)}</td><td><div class="row-actions"><button onclick="app.edit(${i.id})">修改</button><button class="danger" onclick="app.remove(${i.id})">删除</button></div></td></tr>`).join(""):'<tr><td colspan="7"><div class="empty">这个分类目前没有答案</div></td></tr>'}</tbody></table></div>`}
-      else if(state.adminTab==='users'){root.innerHTML=`<div class="toolbar"><div><h3>公司账号与权限</h3><small>密码不会保存在网页中；旧密码无法读取</small></div></div><div class="user-form"><input id="newUsername" class="field" placeholder="登录账号"><input id="newDisplay" class="field" placeholder="显示名称"><input id="newPassword" class="field" type="password" placeholder="初始密码"><select id="newRole" class="field"><option value="viewer">只读使用者</option><option value="editor">编辑者</option><option value="admin">管理员</option></select><button onclick="app.randomAccount()">随机生成</button><button class="primary" onclick="app.createUser()">建立账号</button></div><div class="card-list">${(d.users||[]).map(u=>`<article class="card"><div><strong>${esc(u.display_name)}</strong><small>${esc(u.username)}</small></div><select onchange="app.updateUser('${u.id}',this.value,'${u.status}')"><option value="viewer" ${u.role==='viewer'?'selected':''}>只读</option><option value="editor" ${u.role==='editor'?'selected':''}>编辑者</option><option value="admin" ${u.role==='admin'?'selected':''}>管理员</option></select><select onchange="app.updateUser('${u.id}','${u.role}',this.value)"><option value="active" ${u.status==='active'?'selected':''}>使用中</option><option value="disabled" ${u.status==='disabled'?'selected':''}>已停用</option></select><div class="row-actions"><button onclick="app.resetPassword('${u.id}')">自定新密码</button><button onclick="app.resetAndCopy('${u.id}','${esc(u.username)}')">生成新密码并复制</button><button class="danger" ${u.id===d.user.id?'disabled title="不能删除目前登录的账号"':''} onclick="app.deleteUser('${u.id}','${esc(u.username)}')">删除账号</button></div></article>`).join("")}</div>`}
-      else if(state.adminTab==='tags'){const ps=problems(false);root.innerHTML=`<div class="toolbar"><div><h3>问题搜索标注</h3><small>标注只用于搜索，不会显示在使用页面；支持中文、单字和数字</small></div></div><div class="card-list">${ps.map(p=>`<article class="card tag-card"><div><strong>${esc(p.code)}｜${esc(p.title)}</strong><small>${p.items.length} 笔答案</small></div><input id="tagInput_${esc(p.code)}" class="field" value="${esc((p.search_tags||[]).join('、'))}" placeholder="例如：你好、问候、101、888"><button class="primary" onclick="app.saveProblemTags('${esc(p.code)}')">保存标注</button></article>`).join('')}</div>`}
-      else if(state.adminTab==='drafts'){root.innerHTML=`<div class="card-list">${(d.drafts||[]).length?(d.drafts||[]).map(x=>`<article class="card"><div><strong>${esc(x.proposed_json?.answer_code||'新答案')}｜${esc(x.proposed_json?.problem_title)}</strong><small>${esc(x.proposed_json?.answer_text)}</small></div><button class="primary" onclick="app.draft(${x.id},true)">通过</button><button onclick="app.draft(${x.id},false)">退回</button></article>`).join(""):'<div class="empty">目前没有待审核草稿</div>'}</div>`}
-      else if(state.adminTab==='recycle'){root.innerHTML=`<div class="card-list">${(d.deleted_items||[]).length?(d.deleted_items||[]).map(x=>`<article class="card"><div><strong>${esc(x.answer_code)}｜${esc(x.problem_title)}</strong><small>${esc(x.answer_text)}</small></div><button class="primary" onclick="app.restore(${x.id})">恢复</button></article>`).join(""):'<div class="empty">回收站目前是空的</div>'}</div>`}
-      else if(state.adminTab==='history'){root.innerHTML=`<div class="card-list">${(d.history||[]).map(x=>`<article class="card"><div><strong>答案 #${x.answer_item_id} · v${x.version}</strong><small>${esc(x.action)} · ${new Date(x.created_at).toLocaleString()}</small></div><button onclick="app.restoreHistory(${x.id})">恢复此版本</button></article>`).join("")||'<div class="empty">暂无历史版本</div>'}</div>`}
-      else root.innerHTML=`<div class="tablewrap"><table><thead><tr><th>时间</th><th>人员</th><th>操作</th><th>对象</th></tr></thead><tbody>${(d.audit||[]).map(x=>`<tr><td>${new Date(x.created_at).toLocaleString()}</td><td>${esc(x.actor_name)}</td><td>${esc(x.action)}</td><td>${esc(x.entity_type)} #${esc(x.entity_id)}</td></tr>`).join("")}</tbody></table></div>`}
-    function modal(html){$("modalRoot").innerHTML=`<div class="modalback" onclick="if(event.target===this)app.closeModal()"><section class="modal">${html}</section></div>`}function closeModal(){$("modalRoot").innerHTML="";state.editor=null;state.image=null}
-    function distinct(key){return[...new Set(state.data.items.map(x=>x[key]).filter(Boolean))]}
-    function numbering(e){const items=state.data.items.filter(x=>x.id!==e.id),sameProblem=items.find(x=>norm(x.problem_title)===norm(e.problem_title));const p=sameProblem?.problem_code||String(Math.max(0,...items.map(x=>Number(x.problem_code)||0))+1),pis=items.filter(x=>x.problem_code===p),sameSituation=pis.find(x=>norm(x.situation_label)===norm(e.situation_label)),s=sameSituation?Number((sameSituation.answer_code||'').split('-')[1])||1:Math.max(0,...pis.map(x=>Number((x.answer_code||'').split('-')[1])||0))+1,sis=pis.filter(x=>norm(x.situation_label)===norm(e.situation_label)),dup=sis.find(x=>norm(x.platform)===norm(e.platform));if(dup)return{problem_code:p,answer_code:dup.answer_code,warning:'这个组合已经有答案，请直接修改原答案'};if(!e.platform)return{problem_code:p,answer_code:`${p}-${s}`};const n=Math.max(0,...sis.map(x=>Number((x.answer_code||'').split('-')[2])||0))+1;return{problem_code:p,answer_code:`${p}-${s}-${n}`}}
-    function norm(v){return String(v||'').trim().toLowerCase()}
-    function edit(id){const old=id?state.data.items.find(x=>x.id===id):null;state.editor=old?{...old}:{id:null,answer_code:'',problem_code:'',problem_title:'',situation_label:'',platform:'',answer_text:'',image_key:null};state.image=null;renderEditor()}
-    function renderEditor(){const e=state.editor,n=e.id?e:numbering(e),problems=distinct('problem_title'),situations=distinct('situation_label'),platforms=distinct('platform'),isEditor=state.data.user.role==="editor",title=isEditor?(e.id?'提出修改申请':'提出新增申请'):(e.id?'修改标准答案':'新增标准答案'),description=isEditor?'提交后由管理员审核，现有答案不会立即改变':'问题编号与答案编号会自动产生',submitLabel=isEditor?'提交审核':'保存并发布';modal(`<header><div><h2>${title}</h2><p>${description}</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><label>答案编号<input id="answerCode" class="field readonly" readonly value="${esc(e.id?e.answer_code:n.answer_code)}"></label><label>问题编号<input id="problemCode" class="field readonly" readonly value="${esc(e.id?e.problem_code:n.problem_code)}"></label><label class="wide">问题名称<input class="field" list="problemOpts" value="${esc(e.problem_title)}" oninput="app.editorField('problem_title',this.value)"></label><label>情况<input class="field" list="situationOpts" value="${esc(e.situation_label)}" oninput="app.editorField('situation_label',this.value)"></label><label>平台（可留空）<input class="field" list="platformOpts" value="${esc(e.platform||'')}" oninput="app.editorField('platform',this.value)"></label><datalist id="problemOpts">${problems.map(x=>`<option value="${esc(x)}">`).join('')}</datalist><datalist id="situationOpts">${situations.map(x=>`<option value="${esc(x)}">`).join('')}</datalist><datalist id="platformOpts">${platforms.map(x=>`<option value="${esc(x)}">`).join('')}</datalist><div id="editorWarning" class="warning ${n.warning?'':'hidden'}">${esc(n.warning||'')}</div><label class="wide">标准答案<textarea class="field" oninput="app.editorField('answer_text',this.value)">${esc(e.answer_text)}</textarea></label><label class="wide">答案附图（最多一张）<input class="field" type="file" accept="image/*" onchange="app.chooseImage(this.files[0])"><small>${e.image_key?'已保留原有图片':'尚未选择图片'}</small></label></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.saveEditor()">${submitLabel}</button></footer>`)}
-    function editorField(k,v){state.editor[k]=v;if(!state.editor.id){const n=numbering(state.editor);$("answerCode").value=n.answer_code;$("problemCode").value=n.problem_code;const w=$("editorWarning");w.textContent=n.warning||'';w.classList.toggle('hidden',!n.warning)}}
-    async function compress(file){if(!file||!file.type.startsWith('image/'))throw new Error('请选择图片');const bmp=await createImageBitmap(file);let scale=Math.min(1,1400/Math.max(bmp.width,bmp.height));const canvas=document.createElement('canvas');canvas.width=Math.round(bmp.width*scale);canvas.height=Math.round(bmp.height*scale);canvas.getContext('2d').drawImage(bmp,0,0,canvas.width,canvas.height);const blob=await new Promise(ok=>canvas.toBlob(ok,'image/webp',.82));return new File([blob],file.name.replace(/\.[^.]+$/,'')+'.webp',{type:'image/webp'})}
-    async function chooseImage(file){try{notify('正在处理图片…');state.image=await compress(file);notify('图片已选择')}catch(e){notify(e.message)}}
-    async function saveEditor(){try{const e={...state.editor};if(!e.problem_title.trim()||!e.situation_label.trim()||!e.answer_text.trim())throw new Error('请完整填写问题、情况和标准答案');if(state.image){const f=new FormData();f.set('image',state.image);e.image_key=(await request(null,f)).key}const result=await request({action:'saveAnswer',answer:e});closeModal();await load();notify(result.mode==='draft'?'申请已提交，等待管理员审核':'答案已发布')}catch(e){notify(e.message)}}
-    function myDraftsModal(){const labels={pending:'待审核',approved:'已通过',rejected:'已退回'},drafts=state.data.my_drafts||[];modal(`<header><div><h2>我的申请</h2><p>管理员通过后才会更新正式答案</p></div><button onclick="app.closeModal()">×</button></header><div class="card-list">${drafts.length?drafts.map(x=>`<article class="card"><div><strong>${esc(x.proposed_json?.answer_code||'新增答案')}｜${esc(x.proposed_json?.problem_title||'')}</strong><small>${esc(x.proposed_json?.answer_text||'')}</small></div><b>${labels[x.status]||esc(x.status)}</b></article>`).join(''):'<div class="empty">目前没有申请记录</div>'}</div><footer><button class="primary" onclick="app.closeModal()">完成</button></footer>`)}
-    function bulkModal(){modal(`<header><div><h2>批量整理答案</h2><p>已选择 ${state.selected.size} 笔；留空代表不修改</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><label class="wide">问题分类<input id="bulkProblem" class="field" list="bp" placeholder="不修改；或选择／输入问题名称"></label><label>情况<input id="bulkSituation" class="field" list="bs" placeholder="不修改"></label><label>平台<input id="bulkPlatform" class="field" list="bpl" placeholder="不修改"><span><input id="bulkClear" type="checkbox"> 改为不分平台</span></label><datalist id="bp">${distinct('problem_title').map(x=>`<option value="${esc(x)}">`).join('')}</datalist><datalist id="bs">${distinct('situation_label').map(x=>`<option value="${esc(x)}">`).join('')}</datalist><datalist id="bpl">${distinct('platform').map(x=>`<option value="${esc(x)}">`).join('')}</datalist></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.saveBulk()">确认批量修改</button></footer>`)}
-    async function saveBulk(){try{await request({action:'bulkUpdateAnswers',ids:[...state.selected],changes:{problem_title:$("bulkProblem").value,situation_label:$("bulkSituation").value,platform:$("bulkPlatform").value,clear_platform:$("bulkClear").checked}});state.selected.clear();closeModal();await load();notify('批量整理完成')}catch(e){notify(e.message)}}
-    function orderModal(){const ps=problems(false);modal(`<header><div><h2>调整问题列表顺序</h2><p>移动后会自动重编问题编号与旗下答案编号</p></div><button onclick="app.closeModal()">×</button></header><div class="order-list">${ps.map((p,i)=>`<article class="order-row"><b>${i+1}</b><div><strong>${esc(p.code)}｜${esc(p.title)}</strong><small>${p.items.length} 笔答案</small></div><button ${i===0?'disabled':''} onclick="app.move('${esc(p.code)}','up')">↑ 上移</button><button ${i===ps.length-1?'disabled':''} onclick="app.move('${esc(p.code)}','down')">↓ 下移</button></article>`).join('')}</div><footer><button class="primary" onclick="app.closeModal()">完成</button></footer>`)}
-    async function move(code,direction){try{await request({action:'moveProblem',problem_code:code,direction});await load();orderModal();notify('问题已移动并重新编号')}catch(e){notify(e.message)}}
-    async function saveProblemTags(code){const value=$("tagInput_"+code).value;try{await request({action:'updateProblemTags',problem_code:code,search_tags:value});await load();notify('搜索标注已保存')}catch(e){notify(e.message)}}
-    async function remove(id){if(!confirm('确定删除这笔答案？'))return;try{await request({action:'deleteAnswer',id});state.selected.delete(id);await load();notify('已移入回收站')}catch(e){notify(e.message)}}
-    async function restore(id){try{await request({action:'restoreAnswer',id});await load();notify('答案已恢复')}catch(e){notify(e.message)}}
-    function randomIndex(max){const values=new Uint32Array(1);crypto.getRandomValues(values);return values[0]%max}
-    function generatePassword(){const lower='abcdefghjkmnpqrstuvwxyz',upper='ABCDEFGHJKMNPQRSTUVWXYZ',digits='23456789',symbols='!@#$%';const all=lower+upper+digits+symbols,chars=[lower[randomIndex(lower.length)],upper[randomIndex(upper.length)],digits[randomIndex(digits.length)],symbols[randomIndex(symbols.length)]];while(chars.length<14)chars.push(all[randomIndex(all.length)]);for(let i=chars.length-1;i>0;i--){const j=randomIndex(i+1);[chars[i],chars[j]]=[chars[j],chars[i]]}return chars.join('')}
-    function randomAccount(){const digits=String(randomIndex(1000000)).padStart(6,'0');$("newUsername").value=`staff${digits}`;$("newDisplay").value=`员工${digits.slice(-4)}`;$("newPassword").value=generatePassword();$("newPassword").type='text';$("newRole").value='viewer';notify('已生成账号与密码')}
-    function credentialText(username,password){return `标准答案中心\n账号：${username}\n密码：${password}\n网址：${location.origin}${location.pathname}`}
-    async function copyCredentials(username,password){await navigator.clipboard.writeText(credentialText(username,password));notify('账号密码已复制')}
-    function credentialModal(username,password,title='账号已建立'){state.credentials={username,password};modal(`<header><div><h2>${title}</h2><p>密码只在这里显示，请立即复制并交给使用者</p></div><button onclick="app.closeModal()">×</button></header><div class="credential-box"><div class="credential-row"><b>账号</b><code>${esc(username)}</code></div><div class="credential-row"><b>密码</b><code>${esc(password)}</code></div></div><footer><button onclick="app.closeModal()">完成</button><button class="primary" onclick="app.copyCurrentCredentials()">一键复制账号密码</button></footer>`)}
-    function copyCurrentCredentials(){return copyCredentials(state.credentials.username,state.credentials.password)}
-    async function createUser(){const username=$("newUsername").value.trim(),display_name=$("newDisplay").value.trim(),password=$("newPassword").value,role=$("newRole").value;try{await request({action:'createUser',username,display_name,password,role});await load();credentialModal(username,password);notify('账号已建立')}catch(e){notify(e.message)}}
-    async function updateUser(id,role,status){try{await request({action:'updateUser',id,role,status});await load();notify('权限已更新')}catch(e){notify(e.message)}}
-    async function resetPassword(id){const user=(state.data.users||[]).find(x=>x.id===id),password=prompt(`为 ${user?.display_name||'这个账号'} 设置新密码（至少 8 个字符）`);if(!password)return;try{await request({action:'resetPassword',id,password});notify('密码已重置')}catch(e){notify(e.message)}}
-    async function resetAndCopy(id,username){if(!confirm(`确定为 ${username} 生成新密码？旧密码会立即失效。`))return;const password=generatePassword();try{await request({action:'resetPassword',id,password});credentialModal(username,password,'新密码已产生');try{await copyCredentials(username,password)}catch{notify('新密码已产生，请在窗口内手动复制')}}catch(e){notify(e.message)}}
-    async function deleteUser(id,username){if(!confirm(`确定删除账号 ${username}？\n\n删除后会立即停止使用，过去的答案与操作记录会保留。`))return;try{await request({action:'deleteUser',id});await load();notify('账号已删除')}catch(e){notify(e.message)}}
-    async function draft(id,approve){try{await request({action:approve?'approveDraft':'rejectDraft',id});await load();notify(approve?'草稿已发布':'草稿已退回')}catch(e){notify(e.message)}}
-    async function restoreHistory(id){try{await request({action:'restoreHistory',id});await load();notify('已恢复历史版本')}catch(e){notify(e.message)}}
-    Object.assign(window,{app:{problem:c=>{state.problem=c;state.situation=null;state.platform=null;render()},situation:s=>{state.situation=state.situation===s?null:s;state.platform=null;render()},platform:p=>{state.platform=state.platform===p?null:p;render()},listMode,previewImage,copyText,copyBoth,toggleFavorite,favoriteDragStart,favoriteDragOver,favoriteDragEnd,favoriteDrop,openFavorite,openAdmin,closeAdmin,tab:k=>{state.adminTab=k;renderAdmin()},adminProblem:setAdminProblem,select:(id,on)=>{on?state.selected.add(id):state.selected.delete(id);renderAdmin()},selectAll:on=>{for(const item of adminAnswerItems())on?state.selected.add(item.id):state.selected.delete(item.id);renderAdmin()},clearSelection:()=>{state.selected.clear();renderAdmin()},edit,editorField,chooseImage,saveEditor,myDraftsModal,closeModal,bulkModal,saveBulk,orderModal,move,saveProblemTags,remove,restore,randomAccount,copyCredentials,copyCurrentCredentials,createUser,updateUser,resetPassword,resetAndCopy,deleteUser,draft,restoreHistory}});
-    const favoriteListObserver=new MutationObserver(()=>{if(state.listMode==='favorites')enableFavoriteSorting()});favoriteListObserver.observe($("problemList"),{childList:true});
-    const platformToneObserver=new MutationObserver(applyPlatformTones);platformToneObserver.observe($("answerPane"),{childList:true,subtree:true});
-    $("searchInput").addEventListener("input",e=>{state.query=e.target.value;render()});$("editorCreateButton").onclick=()=>edit();$("myDraftsButton").onclick=myDraftsModal;$("adminButton").onclick=openAdmin;$("logoutButton").onclick=async()=>{await supabase.auth.signOut();state.data=null;showLogin()};$("loginForm").onsubmit=async e=>{e.preventDefault();$("loginError").textContent="";const {error}=await supabase.auth.signInWithPassword({email:usernameEmail($("loginUser").value),password:$("loginPassword").value});if(error){$("loginError").textContent="账号或密码不正确";return}try{showApp();await load()}catch(err){$("loginError").textContent=err.message;showLogin()}};
-    const initial=await session();if(initial){showApp();try{await load()}catch{showLogin()}}else showLogin();setInterval(()=>{if(state.data)load().catch(()=>{})},30000);
-  </script>
-</body>
+    <main id="appView" class="shell hidden">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-icon">答</div>
+          <strong>标准答案中心</strong>
+        </div>
+        <div class="top-actions">
+          <button id="announcementsButton" class="announcement-button">
+            公告 <b id="announcementCount" class="hidden">0</b></button
+          ><span id="userName"></span><span id="avatar" class="avatar"></span
+          ><button id="editorCreateButton" class="hidden">＋ 提出申请</button
+          ><button id="myDraftsButton" class="hidden">我的申请</button
+          ><button id="adminButton" class="hidden">管理后台</button
+          ><button id="logoutButton">退出</button>
+        </div>
+      </header>
+      <section class="workspace">
+        <aside class="problem-pane">
+          <div class="search">
+            ⌕<input id="searchInput" placeholder="搜索问题编号或关键词" />
+          </div>
+          <div class="list-tabs">
+            <button
+              id="problemsTab"
+              class="active"
+              onclick="app.listMode('problems')"
+            >
+              问题列表 <b id="problemCount">0</b></button
+            ><button id="favoritesTab" onclick="app.listMode('favorites')">
+              ★ 我的常用 <b id="favoriteCount">0</b>
+            </button>
+          </div>
+          <div id="problemList" class="problem-list"></div>
+        </aside>
+        <aside id="choicePane" class="choice-pane"></aside>
+        <section id="answerPane" class="answer-pane"></section>
+      </section>
+    </main>
+    <section id="adminView" class="admin hidden">
+      <header class="admin-head">
+        <h2>管理后台</h2>
+        <button class="ghost" onclick="app.closeAdmin()">
+          返回标准答案中心
+        </button>
+      </header>
+      <nav id="adminTabs" class="admin-tabs"></nav>
+      <div id="adminContent" class="admin-content"></div>
+    </section>
+    <div id="announcementRoot"></div>
+    <div id="modalRoot"></div>
+    <div id="toast" class="toast"></div>
+    <script type="module">
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+      const SB_URL = "https://ehunehldizwnissqjnmo.supabase.co";
+      const SB_KEY = "sb_publishable_V2SulLXaBuXNVAOuPwR6kQ_FlN0w7dM";
+      const API = SB_URL + "/functions/v1/team-api";
+      const supabase = createClient(SB_URL, SB_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+        },
+      });
+      const state = {
+        data: null,
+        query: "",
+        problem: null,
+        situation: null,
+        platform: null,
+        listMode: "problems",
+        adminTab: "answers",
+        adminProblem: "all",
+        draftFilter: "unprocessed",
+        selected: new Set(),
+        editor: null,
+        image: null,
+        announcementEditor: null,
+        dragFavoriteId: null,
+        suppressFavoriteClick: false,
+      };
+      const $ = (id) => document.getElementById(id);
+      const esc = (v) =>
+        String(v ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const usernameEmail = (u) =>
+        u.trim().toLowerCase() + "@team-answer.local";
+      function notify(message) {
+        const t = $("toast");
+        t.textContent = message;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2400);
+      }
+      async function session() {
+        return (await supabase.auth.getSession()).data.session;
+      }
+      async function request(body = null, form = null) {
+        const s = await session();
+        if (!s) throw new Error("登录已失效");
+        const options = {
+          method: body || form ? "POST" : "GET",
+          headers: {
+            apikey: SB_KEY,
+            Authorization: "Bearer " + s.access_token,
+          },
+        };
+        if (body) {
+          options.headers["content-type"] = "application/json";
+          options.body = JSON.stringify(body);
+        }
+        if (form) options.body = form;
+        const r = await fetch(API, options);
+        const data = await r.json();
+        if (r.status === 401) {
+          await supabase.auth.signOut();
+          showLogin();
+          throw new Error("登录已失效");
+        }
+        if (!r.ok) throw new Error(data.error || "操作失败");
+        return data;
+      }
+      async function load() {
+        state.data = await request();
+        const codes = new Set(state.data.items.map((x) => x.problem_code));
+        if (!codes.has(state.problem))
+          state.problem = state.data.items[0]?.problem_code || null;
+        render();
+        if (!$("adminView").classList.contains("hidden")) renderAdmin();
+      }
+      function problems(applySearch = true) {
+        const map = new Map();
+        for (const item of state.data?.items || []) {
+          if (!map.has(item.problem_code))
+            map.set(item.problem_code, {
+              code: item.problem_code,
+              title: item.problem_title,
+              search_tags: item.search_tags || [],
+              items: [],
+            });
+          map.get(item.problem_code).items.push(item);
+        }
+        const all = [...map.values()],
+          raw = applySearch ? state.query.trim() : "";
+        if (!raw) return all;
+        const q = raw.toLowerCase(),
+          numeric = /^[\d\s-]+$/.test(raw) && /\d/.test(raw),
+          compact = raw.replace(/\D/g, ""),
+          structured = raw
+            .replace(/\s/g, "")
+            .replace(/-+/g, "-")
+            .replace(/^-|-$/g, "");
+        return all
+          .map((p) => {
+            let matchedItems = [],
+              exactAnswerId = null;
+            if (numeric) {
+              matchedItems = p.items.filter((i) => {
+                const code = String(i.answer_code || ""),
+                  codeCompact = code.replace(/\D/g, ""),
+                  hit = raw.includes("-")
+                    ? code === structured || code.startsWith(structured + "-")
+                    : codeCompact.startsWith(compact);
+                if (code === structured || codeCompact === compact)
+                  exactAnswerId = Number(i.id);
+                return hit;
+              });
+            } else {
+              const problemHit = (
+                p.code +
+                " " +
+                p.title +
+                " " +
+                p.search_tags.join(" ")
+              )
+                .toLowerCase()
+                .includes(q);
+              matchedItems = problemHit
+                ? p.items
+                : p.items.filter((i) =>
+                    (
+                      i.situation_label +
+                      " " +
+                      (i.platform || "") +
+                      " " +
+                      i.answer_text
+                    )
+                      .toLowerCase()
+                      .includes(q),
+                  );
+            }
+            return {
+              ...p,
+              matchedItems,
+              exactAnswerId,
+              numericSearch: numeric,
+              problemOnly:
+                numeric && String(p.code).replace(/\D/g, "") === compact,
+            };
+          })
+          .filter((p) => p.matchedItems.length);
+      }
+      function orderAnswers(items, exactId = null, matchedIds = new Set()) {
+        return [...items].sort((a, b) => {
+          const exactRank = (x) =>
+              exactId ? (Number(x.id) === Number(exactId) ? 0 : 1) : 0,
+            matchRank = (x) =>
+              matchedIds.size ? (matchedIds.has(Number(x.id)) ? 0 : 1) : 0,
+            situationRank = (x) =>
+              state.situation
+                ? x.situation_label === state.situation
+                  ? 0
+                  : 1
+                : 0,
+            platformRank = (x) =>
+              state.platform ? (x.platform === state.platform ? 0 : 1) : 0;
+          return (
+            exactRank(a) - exactRank(b) ||
+            matchRank(a) - matchRank(b) ||
+            situationRank(a) - situationRank(b) ||
+            platformRank(a) - platformRank(b) ||
+            String(a.answer_code).localeCompare(
+              String(b.answer_code),
+              "zh-CN",
+              { numeric: true },
+            )
+          );
+        });
+      }
+      function current() {
+        const ps = problems(state.listMode === "problems");
+        const p = ps.find((x) => x.code === state.problem) || ps[0];
+        if (!p) return {};
+        state.problem = p.code;
+        const hasQuery = state.listMode === "problems" && state.query.trim(),
+          displayItems =
+            hasQuery && p.numericSearch && !p.problemOnly && !p.exactAnswerId
+              ? p.matchedItems
+              : p.items,
+          matchedIds = new Set((p.matchedItems || []).map((i) => Number(i.id))),
+          situations = [...new Set(displayItems.map((i) => i.situation_label))];
+        if (state.situation && !situations.includes(state.situation))
+          state.situation = null;
+        const platformItems = state.situation
+            ? displayItems.filter((i) => i.situation_label === state.situation)
+            : displayItems,
+          platforms = [
+            ...new Set(platformItems.map((i) => i.platform).filter(Boolean)),
+          ];
+        if (state.platform && !platforms.includes(state.platform))
+          state.platform = null;
+        const orderedItems = orderAnswers(
+          displayItems,
+          p.exactAnswerId,
+          matchedIds,
+        );
+        return {
+          p,
+          situations,
+          items: displayItems,
+          platforms,
+          orderedItems,
+          answer: orderedItems[0],
+          matchedIds,
+          exactAnswerId: p.exactAnswerId,
+        };
+      }
+      function favoriteItems(applySearch = true) {
+        const byId = new Map(
+            (state.data?.items || []).map((x) => [Number(x.id), x]),
+          ),
+          q = applySearch ? state.query.trim().toLowerCase() : "";
+        return (state.data?.favorites || [])
+          .map((f) => byId.get(Number(f.answer_id)))
+          .filter(
+            (a) =>
+              a &&
+              (!q ||
+                (
+                  a.answer_code +
+                  " " +
+                  a.problem_title +
+                  " " +
+                  a.situation_label +
+                  " " +
+                  (a.platform || "") +
+                  " " +
+                  a.answer_text
+                )
+                  .toLowerCase()
+                  .includes(q)),
+          );
+      }
+      function render() {
+        if (!state.data) return;
+        const isEditor = state.data.user.role === "editor",
+          isAdmin = state.data.user.role === "admin",
+          favoriteIds = new Set(
+            (state.data.favorites || []).map((x) => Number(x.answer_id)),
+          ),
+          ps = problems(state.listMode === "problems"),
+          favorites = favoriteItems(),
+          unreadCount = (state.data.unread_announcement_ids || []).length,
+          matchedAnswerCount = ps.reduce(
+            (total, problem) =>
+              total + (problem.matchedItems?.length || problem.items.length),
+            0,
+          );
+        $("userName").textContent = state.data.user.display_name;
+        $("avatar").textContent = state.data.user.display_name.slice(0, 1);
+        $("announcementCount").textContent = unreadCount;
+        $("announcementCount").classList.toggle("hidden", !unreadCount);
+        $("problemCount").textContent = state.query.trim()
+          ? `${ps.length}/${matchedAnswerCount}`
+          : problems(false).length;
+        $("problemsTab").title = state.query.trim()
+          ? `找到 ${ps.length} 个问题／${matchedAnswerCount} 笔答案`
+          : "完整问题列表";
+        $("favoriteCount").textContent = favoriteIds.size;
+        $("problemsTab").classList.toggle(
+          "active",
+          state.listMode === "problems",
+        );
+        $("favoritesTab").classList.toggle(
+          "active",
+          state.listMode === "favorites",
+        );
+        $("searchInput").placeholder =
+          state.listMode === "favorites"
+            ? "搜索常用回答"
+            : "搜索问题编号或关键词";
+        $("editorCreateButton").classList.toggle("hidden", !isEditor);
+        $("myDraftsButton").classList.toggle("hidden", !isEditor);
+        $("adminButton").classList.toggle("hidden", !isAdmin);
+        const c = current(),
+          activeAnswerId = Number(c.answer?.id);
+        $("problemList").innerHTML =
+          state.listMode === "problems"
+            ? ps
+                .map(
+                  (p) =>
+                    `<button class="problem ${p.code === state.problem ? "active" : ""}" onclick="app.problem('${esc(p.code)}')"><b>${esc(p.code)}</b><span><strong>${esc(p.title)}</strong><small>${new Set(p.items.map((i) => i.situation_label)).size} 种情况 · ${p.items.length} 笔答案</small></span></button>`,
+                )
+                .join("")
+            : favorites.length
+              ? favorites
+                  .map(
+                    (a) =>
+                      `<button class="favorite-row ${Number(a.id) === activeAnswerId ? "active" : ""}" onclick="app.openFavorite(${a.id})"><b>${esc(a.answer_code)}</b><span><strong>${esc(a.problem_title)}</strong><small>${esc(a.situation_label)} · ${esc(a.platform || "通用")}</small></span><i>›</i></button>`,
+                  )
+                  .join("")
+              : '<div class="favorite-empty">还没有常用回答<br>请在答案页面点击“加入常用”</div>';
+        if (!c.p) {
+          $("choicePane").innerHTML = state.query.trim()
+            ? '<div class="empty"><div>没有找到符合的答案<br><br><button class="search-clear" onclick="app.clearSearch()">清除搜索</button></div></div>'
+            : '<div class="empty">没有答案</div>';
+          $("answerPane").innerHTML = "";
+          return;
+        }
+        $("choicePane").innerHTML =
+          `<div class="compact-current"><small>当前问题</small><h2><span>${esc(c.p.code)}</span>｜${esc(c.p.title)}</h2></div><div class="compact-filter-group"><small>情况（点击后整组置顶）</small><div class="chips">${c.situations.map((s) => `<button class="chip ${s === state.situation ? "active" : ""}" onclick="app.situation('${esc(s)}')">${esc(s)}</button>`).join("")}</div></div>${c.platforms.length ? `<div class="compact-filter-group"><small>平台（点击后优先排列）</small><div class="chips">${c.platforms.map((p) => `<button class="chip ${p === state.platform ? "active" : ""}" onclick="app.platform('${esc(p)}')">${esc(p)}</button>`).join("")}</div></div>` : "<div></div>"}<div class="compact-total"><b>${c.orderedItems.length}</b><small>全部答案</small></div>`;
+        const exactSituation = c.exactAnswerId
+            ? c.orderedItems.find(
+                (item) => Number(item.id) === Number(c.exactAnswerId),
+              )?.situation_label
+            : null,
+          groups = [...c.situations]
+            .sort((a, b) => {
+              const rank = (situation) =>
+                situation === exactSituation
+                  ? 0
+                  : situation === state.situation
+                    ? 1
+                    : 2;
+              return rank(a) - rank(b);
+            })
+            .map((s) => ({
+              situation: s,
+              items: c.orderedItems.filter((i) => i.situation_label === s),
+            }));
+        $("answerPane").innerHTML = c.orderedItems.length
+          ? `<div class="answer-groups">${groups
+              .map(
+                (group, groupIndex) =>
+                  `<section class="answer-group ${state.situation === group.situation ? "active" : ""}"><header><div><span>${groupIndex + 1}</span><strong>${esc(group.situation)}</strong><small>${group.items.length} 笔答案</small></div><em>${state.situation === group.situation ? "已置顶" : ""}</em></header><div>${group.items
+                    .map((a, index) => {
+                      const isFavorite = favoriteIds.has(Number(a.id));
+                      const isSearchHit =
+                        state.query.trim() && c.matchedIds?.has(Number(a.id));
+                      return `<article class="answer-row ${index === 0 && state.platform && a.platform === state.platform ? "prioritized" : ""} ${isSearchHit ? "search-hit" : ""}"><strong>${esc(a.answer_code)}</strong><button class="answer-platform" title="${a.image_url ? "点击复制图片＋文字" : "点击复制文字"}" onclick="app.copyBoth(${a.id})">${esc(a.platform || "通用")}</button><p class="answer-row-text" title="${esc(a.answer_text)}">${esc(a.answer_text)}</p>${a.image_url ? `<button class="image-preview-button" title="查看附图" onclick="app.previewImage(${a.id})">▧</button>` : "<span></span>"}<div class="answer-row-actions"><button onclick="app.copyText(${a.id})">复制文字</button><button class="compact-favorite ${isFavorite ? "favorite-active" : ""}" title="${isFavorite ? "移出常用" : "加入常用"}" onclick="app.toggleFavorite(${a.id})">${isFavorite ? "★" : "☆"}</button>${isEditor ? `<button onclick="app.edit(${a.id})">申请修改</button>` : isAdmin ? `<button onclick="app.edit(${a.id})">修改</button>` : ""}</div></article>`;
+                    })
+                    .join("")}</div></section>`,
+              )
+              .join("")}</div>`
+          : '<div class="empty">此问题尚无答案</div>';
+      }
+      function previewImage(id) {
+        const a = state.data.items.find((x) => x.id === id);
+        if (!a?.image_url) return notify("此答案没有附图");
+        modal(
+          `<header><div><h2>答案附图</h2><p>${esc(a.answer_code)}｜${esc(a.situation_label)}｜${esc(a.platform || "通用")}</p></div><button onclick="app.closeModal()">×</button></header><img class="image-preview-modal" src="${esc(a.image_url)}" alt="答案附图"><footer><button onclick="app.closeModal()">关闭</button></footer>`,
+        );
+      }
+      async function copyText(id) {
+        const a = state.data.items.find((x) => x.id === id);
+        await navigator.clipboard.writeText(a.answer_text);
+        notify("文字已复制");
+      }
+      async function copyBoth(id) {
+        const a = state.data.items.find((x) => x.id === id);
+        if (!a.image_url) return copyText(id);
+        try {
+          const source = await fetch(a.image_url).then((r) => r.blob());
+          const dataUrl = await new Promise((ok, no) => {
+            const f = new FileReader();
+            f.onload = () => ok(f.result);
+            f.onerror = no;
+            f.readAsDataURL(source);
+          });
+          const image = await new Promise((ok, no) => {
+            const i = new Image();
+            i.onload = () => ok(i);
+            i.onerror = no;
+            i.src = dataUrl;
+          });
+          const canvas = document.createElement("canvas");
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+          canvas.getContext("2d").drawImage(image, 0, 0);
+          const png = await new Promise((ok) => canvas.toBlob(ok, "image/png"));
+          const text = esc(a.answer_text).replace(/\n/g, "<br>");
+          const html = `<div><img src="${dataUrl}"><br><div>${text}</div></div>`;
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "image/png": png,
+              "text/html": new Blob([html], { type: "text/html" }),
+              "text/plain": new Blob([a.answer_text], { type: "text/plain" }),
+            }),
+          ]);
+          notify("图片＋文字已复制（图片在前）");
+        } catch {
+          await copyText(id);
+          notify("浏览器无法复制图片，已改为复制文字");
+        }
+      }
+      function openAnnouncements() {
+        renderAnnouncementDrawer();
+      }
+      function closeAnnouncements() {
+        $("announcementRoot").innerHTML = "";
+      }
+      function renderAnnouncementDrawer() {
+        const unread = new Set(
+            (state.data?.unread_announcement_ids || []).map(Number),
+          ),
+          announcements = state.data?.announcements || [];
+        $("announcementRoot").innerHTML =
+          `<div class="announcement-backdrop" onclick="if(event.target===this)app.closeAnnouncements()"><aside class="announcement-drawer"><header><h2>公告</h2><button class="ghost" onclick="app.closeAnnouncements()">关闭</button></header><div class="announcement-list">${announcements.length ? announcements.map((item) => `<article class="announcement-item ${unread.has(Number(item.id)) ? "unread" : ""}" onclick="app.readAnnouncement(${item.id})"><header><strong>${esc(item.title)}</strong>${item.is_pinned ? "<b>置顶</b>" : ""}</header><p>${esc(item.body)}</p>${item.image_url ? `<img src="${esc(item.image_url)}" alt="公告图片" title="点击放大" onclick="event.stopPropagation();app.previewAnnouncementImage(${item.id})">` : ""}<small>${new Date(item.updated_at || item.created_at).toLocaleString()}${unread.has(Number(item.id)) ? " · 未读" : ""}</small></article>`).join("") : '<div class="empty">目前没有公告</div>'}</div></aside></div>`;
+      }
+      function previewAnnouncementImage(id) {
+        const item = (state.data?.announcements || []).find(
+          (announcement) => Number(announcement.id) === Number(id),
+        );
+        if (!item?.image_url) return notify("此公告没有附图");
+        modal(
+          `<header><div><h2>${esc(item.title)}</h2><p>公告附图</p></div><button onclick="app.closeModal()">×</button></header><img class="image-preview-modal" src="${esc(item.image_url)}" alt="公告附图"><footer><button onclick="app.closeModal()">关闭</button></footer>`,
+        );
+      }
+      async function readAnnouncement(id) {
+        if (
+          !(state.data?.unread_announcement_ids || [])
+            .map(Number)
+            .includes(Number(id))
+        )
+          return;
+        try {
+          await request({ action: "markAnnouncementRead", id });
+          await load();
+          renderAnnouncementDrawer();
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function showLogin() {
+        $("loginView").classList.remove("hidden");
+        $("appView").classList.add("hidden");
+        $("adminView").classList.add("hidden");
+      }
+      function showApp() {
+        $("loginView").classList.add("hidden");
+        $("appView").classList.remove("hidden");
+      }
+      function openAdmin() {
+        state.adminTab = "answers";
+        state.adminProblem = "all";
+        state.selected.clear();
+        $("adminView").classList.remove("hidden");
+        renderAdmin();
+      }
+      function closeAdmin() {
+        $("adminView").classList.add("hidden");
+        render();
+      }
+      async function toggleFavorite(id) {
+        try {
+          const result = await request({
+            action: "toggleFavorite",
+            answer_id: id,
+          });
+          await load();
+          notify(result.favorite ? "已加入常用" : "已移除常用");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function enableFavoriteSorting() {
+        const rows = [...$("problemList").querySelectorAll(".favorite-row")],
+          items = favoriteItems();
+        rows.forEach((row, index) => {
+          const answer = items[index],
+            enabled = !state.query.trim();
+          if (!answer) return;
+          row.draggable = enabled;
+          row.dataset.favoriteId = String(answer.id);
+          row.title = enabled
+            ? "拖动可调整常用顺序"
+            : "清除搜索内容后可调整顺序";
+          row.ondragstart = (event) => favoriteDragStart(event, answer.id);
+          row.ondragover = (event) => favoriteDragOver(event, answer.id);
+          row.ondragleave = (event) =>
+            event.currentTarget.classList.remove("drag-over");
+          row.ondrop = (event) => favoriteDrop(event, answer.id);
+          row.ondragend = favoriteDragEnd;
+        });
+      }
+      function favoriteDragStart(event, id) {
+        if (state.query.trim()) {
+          event.preventDefault();
+          return;
+        }
+        state.dragFavoriteId = Number(id);
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(id));
+        event.currentTarget.classList.add("dragging");
+      }
+      function favoriteDragOver(event, id) {
+        if (!state.dragFavoriteId || Number(id) === state.dragFavoriteId)
+          return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        event.currentTarget.classList.add("drag-over");
+      }
+      function favoriteDragEnd() {
+        state.dragFavoriteId = null;
+        state.suppressFavoriteClick = true;
+        document
+          .querySelectorAll(".favorite-row.dragging,.favorite-row.drag-over")
+          .forEach((row) => row.classList.remove("dragging", "drag-over"));
+        setTimeout(() => {
+          state.suppressFavoriteClick = false;
+        }, 80);
+      }
+      async function favoriteDrop(event, targetId) {
+        event.preventDefault();
+        event.stopPropagation();
+        const sourceId = Number(state.dragFavoriteId),
+          destinationId = Number(targetId);
+        document
+          .querySelectorAll(".favorite-row.dragging,.favorite-row.drag-over")
+          .forEach((row) => row.classList.remove("dragging", "drag-over"));
+        if (!sourceId || sourceId === destinationId) return;
+        const previous = (state.data.favorites || []).map((item) => ({
+            ...item,
+          })),
+          order = previous.map((item) => Number(item.answer_id)),
+          from = order.indexOf(sourceId),
+          to = order.indexOf(destinationId);
+        if (from < 0 || to < 0) return;
+        order.splice(to, 0, order.splice(from, 1)[0]);
+        const byId = new Map(
+          previous.map((item) => [Number(item.answer_id), item]),
+        );
+        state.data.favorites = order.map((answer_id, index) => ({
+          ...byId.get(answer_id),
+          answer_id,
+          sort_order: index + 1,
+        }));
+        state.dragFavoriteId = null;
+        render();
+        try {
+          await request({ action: "reorderFavorites", answer_ids: order });
+          notify("常用顺序已保存");
+        } catch (e) {
+          state.data.favorites = previous;
+          render();
+          notify(e.message);
+        }
+      }
+      function openFavorite(id) {
+        if (state.suppressFavoriteClick) return;
+        const a = (state.data?.items || []).find(
+          (x) => Number(x.id) === Number(id),
+        );
+        if (!a) {
+          notify("这笔答案目前无法使用");
+          return;
+        }
+        state.query = "";
+        $("searchInput").value = "";
+        state.problem = a.problem_code;
+        state.situation = a.situation_label;
+        state.platform = a.platform || null;
+        render();
+      }
+      function applyPlatformTones() {
+        const tones = {
+          现金: "cash",
+          棋牌: "board",
+          体育: "sports",
+          棋牌APP: "app",
+        };
+        $("answerPane")
+          .querySelectorAll(".answer-platform")
+          .forEach((button) => {
+            const tone = tones[button.textContent.trim()];
+            if (tone) button.dataset.platformTone = tone;
+            else delete button.dataset.platformTone;
+          });
+      }
+      function listMode(mode) {
+        state.listMode = mode;
+        state.query = "";
+        $("searchInput").value = "";
+        if (mode === "favorites") {
+          const first = favoriteItems(false)[0];
+          if (first) {
+            state.problem = first.problem_code;
+            state.situation = first.situation_label;
+            state.platform = first.platform || null;
+          }
+        }
+        render();
+      }
+      function clearSearch() {
+        state.query = "";
+        $("searchInput").value = "";
+        render();
+        $("searchInput").focus();
+      }
+      const adminTabs = [
+        ["answers", "答案管理"],
+        ["tags", "搜索标注"],
+        ["drafts", "申请管理"],
+        ["announcements", "公告管理"],
+        ["users", "账号权限"],
+        ["recycle", "回收站"],
+        ["history", "版本历史"],
+        ["audit", "操作记录"],
+      ];
+      function adminAnswerItems() {
+        const items = state.data?.items || [];
+        return state.adminProblem === "all"
+          ? items
+          : items.filter((i) => i.problem_code === state.adminProblem);
+      }
+      function setAdminProblem(code) {
+        state.adminProblem = code;
+        state.selected.clear();
+        renderAdmin();
+      }
+      function renderAdmin() {
+        const d = state.data;
+        $("adminTabs").innerHTML = adminTabs
+          .map(
+            ([k, l]) =>
+              `<button class="${state.adminTab === k ? "active" : ""}" onclick="app.tab('${k}')">${l}</button>`,
+          )
+          .join("");
+        const root = $("adminContent");
+        if (state.adminTab === "answers") {
+          const ps = problems(false);
+          if (
+            state.adminProblem !== "all" &&
+            !ps.some((p) => p.code === state.adminProblem)
+          )
+            state.adminProblem = "all";
+          const visibleItems = adminAnswerItems(),
+            allVisibleSelected =
+              visibleItems.length &&
+              visibleItems.every((i) => state.selected.has(i.id));
+          root.innerHTML = `<div class="toolbar"><div><h3>标准答案资料</h3><small>先选择问题分类，再查看或批量整理答案</small></div><div class="toolbar-actions"><button onclick="app.orderModal()">调整问题顺序</button><button class="primary" onclick="app.edit()">＋ 新增答案</button></div></div><div class="answer-category-bar"><button class="${state.adminProblem === "all" ? "active" : ""}" onclick="app.adminProblem('all')">全部 <b>${d.items.length}</b></button>${ps.map((p) => `<button class="${state.adminProblem === p.code ? "active" : ""}" onclick="app.adminProblem('${esc(p.code)}')">${esc(p.code)}｜${esc(p.title)} <b>${p.items.length}</b></button>`).join("")}</div>${state.selected.size ? `<div class="bulkbar"><b>已选择 ${state.selected.size} 笔</b><span>可统一修改问题分类、情况或平台</span><button class="primary" onclick="app.bulkModal()">批量整理</button><button onclick="app.clearSelection()">取消</button></div>` : ""}<div class="tablewrap"><table><thead><tr><th><input type="checkbox" ${allVisibleSelected ? "checked" : ""} ${visibleItems.length ? "" : "disabled"} onchange="app.selectAll(this.checked)"></th><th>答案编号</th><th>问题</th><th>情况</th><th>平台</th><th>标准答案</th><th>操作</th></tr></thead><tbody>${visibleItems.length ? visibleItems.map((i) => `<tr class="${state.selected.has(i.id) ? "selected" : ""}"><td><input type="checkbox" ${state.selected.has(i.id) ? "checked" : ""} onchange="app.select(${i.id},this.checked)"></td><td><b>${esc(i.answer_code)}</b></td><td>${esc(i.problem_code)}｜${esc(i.problem_title)}</td><td>${esc(i.situation_label)}</td><td>${esc(i.platform || "通用")}</td><td class="answer-cell">${esc(i.answer_text)}</td><td><div class="row-actions"><button onclick="app.edit(${i.id})">修改</button><button class="danger" onclick="app.remove(${i.id})">删除</button></div></td></tr>`).join("") : '<tr><td colspan="7"><div class="empty">这个分类目前没有答案</div></td></tr>'}</tbody></table></div>`;
+        } else if (state.adminTab === "users") {
+          root.innerHTML = `<div class="toolbar"><div><h3>公司账号与权限</h3><small>密码不会保存在网页中；旧密码无法读取</small></div></div><div class="user-form"><input id="newUsername" class="field" placeholder="登录账号"><input id="newDisplay" class="field" placeholder="显示名称"><input id="newPassword" class="field" type="password" placeholder="初始密码"><select id="newRole" class="field"><option value="viewer">只读使用者</option><option value="editor">编辑者</option><option value="admin">管理员</option></select><button onclick="app.randomAccount()">随机生成</button><button class="primary" onclick="app.createUser()">建立账号</button></div><div class="card-list">${(d.users || []).map((u) => `<article class="card"><div><strong>${esc(u.display_name)}</strong><small>${esc(u.username)}</small></div><select onchange="app.updateUser('${u.id}',this.value,'${u.status}')"><option value="viewer" ${u.role === "viewer" ? "selected" : ""}>只读</option><option value="editor" ${u.role === "editor" ? "selected" : ""}>编辑者</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>管理员</option></select><select onchange="app.updateUser('${u.id}','${u.role}',this.value)"><option value="active" ${u.status === "active" ? "selected" : ""}>使用中</option><option value="disabled" ${u.status === "disabled" ? "selected" : ""}>已停用</option></select><div class="row-actions"><button onclick="app.resetPassword('${u.id}')">自定新密码</button><button onclick="app.resetAndCopy('${u.id}','${esc(u.username)}')">生成新密码并复制</button><button class="danger" ${u.id === d.user.id ? 'disabled title="不能删除目前登录的账号"' : ""} onclick="app.deleteUser('${u.id}','${esc(u.username)}')">删除账号</button></div></article>`).join("")}</div>`;
+        } else if (state.adminTab === "tags") {
+          const ps = problems(false);
+          root.innerHTML = `<div class="toolbar"><div><h3>问题搜索标注</h3><small>标注只用于搜索，不会显示在使用页面；支持中文、单字和数字</small></div></div><div class="card-list">${ps.map((p) => `<article class="card tag-card"><div><strong>${esc(p.code)}｜${esc(p.title)}</strong><small>${p.items.length} 笔答案</small></div><input id="tagInput_${esc(p.code)}" class="field" value="${esc((p.search_tags || []).join("、"))}" placeholder="例如：你好、问候、101、888"><button class="primary" onclick="app.saveProblemTags('${esc(p.code)}')">保存标注</button></article>`).join("")}</div>`;
+        } else if (state.adminTab === "drafts") {
+          const typeLabels = {
+              edit: "修正答案",
+              supplement: "补充答案",
+              new_problem: "全新问题",
+            },
+            users = new Map((d.users || []).map((u) => [u.id, u])),
+            drafts = (d.drafts || []).filter(
+              (item) => item.status === state.draftFilter,
+            );
+          root.innerHTML = `<div class="toolbar"><div><h3>客服申请</h3><small>申请仅供参考；正式答案请到“答案管理”手动新增或修改</small></div></div><div class="list-tabs"><button class="${state.draftFilter === "unprocessed" ? "active" : ""}" onclick="app.adminDraftFilter('unprocessed')">未处理</button><button class="${state.draftFilter === "processed" ? "active" : ""}" onclick="app.adminDraftFilter('processed')">已处理</button></div><div class="card-list">${
+            drafts.length
+              ? drafts
+                  .map((x) => {
+                    const before = x.original_json || {},
+                      after = x.proposed_json || {},
+                      applicant = users.get(x.created_by);
+                    return `<article class="card draft-card"><div><strong>${esc(typeLabels[x.request_type] || "申请")}｜${esc(after.problem_title || "")}</strong><small>申请人：${esc(applicant?.display_name || "未知")} · ${new Date(x.updated_at || x.created_at).toLocaleString()}</small>${x.request_reason ? `<small>申请原因：${esc(x.request_reason)}</small>` : ""}${after.member_question ? `<small>会员询问：${esc(after.member_question)}</small>` : ""}${x.request_type === "edit" ? `<div class="diff-box"><section><small>原文字</small>${esc(before.answer_text || "")}</section><section><small>新文字</small>${esc(after.answer_text || "")}</section></div>` : `<small>建议回复：${esc(after.answer_text || "未填写")}</small>`}${x.review_note ? `<small>管理员备注：${esc(x.review_note)}</small>` : ""}</div><b>${x.status === "unprocessed" ? "未处理" : "已处理"}</b>${x.status === "unprocessed" ? `<button class="primary" onclick="app.processDraftModal(${x.id})">标记已处理</button>` : ""}</article>`;
+                  })
+                  .join("")
+              : '<div class="empty">目前没有申请记录</div>'
+          }</div>`;
+        } else if (state.adminTab === "announcements") {
+          root.innerHTML = `<div class="toolbar"><div><h3>公告管理</h3><small>所有账号都会看到相同公告</small></div><div class="toolbar-actions"><button class="primary" onclick="app.announcementEdit()">＋ 发布公告</button></div></div><div class="card-list">${(d.all_announcements || []).length ? (d.all_announcements || []).map((item) => `<article class="card announcement-admin-card"><div><strong>${item.is_pinned ? "置顶｜" : ""}${esc(item.title)}</strong><small>${esc(item.body)}</small><small>${new Date(item.updated_at || item.created_at).toLocaleString()} · ${item.status === "published" ? "已发布" : "已下架"}</small></div>${item.status === "published" ? `<button onclick="app.announcementEdit(${item.id})">修改</button><button class="danger" onclick="app.archiveAnnouncement(${item.id})">下架</button>` : ""}</article>`).join("") : '<div class="empty">目前没有公告</div>'}</div>`;
+        } else if (state.adminTab === "recycle") {
+          root.innerHTML = `<div class="card-list">${(d.deleted_items || []).length ? (d.deleted_items || []).map((x) => `<article class="card"><div><strong>${esc(x.answer_code)}｜${esc(x.problem_title)}</strong><small>${esc(x.answer_text)}</small></div><button class="primary" onclick="app.restore(${x.id})">恢复</button></article>`).join("") : '<div class="empty">回收站目前是空的</div>'}</div>`;
+        } else if (state.adminTab === "history") {
+          root.innerHTML = `<div class="card-list">${(d.history || []).map((x) => `<article class="card"><div><strong>答案 #${x.answer_item_id} · v${x.version}</strong><small>${esc(x.action)} · ${new Date(x.created_at).toLocaleString()}</small></div><button onclick="app.restoreHistory(${x.id})">恢复此版本</button></article>`).join("") || '<div class="empty">暂无历史版本</div>'}</div>`;
+        } else
+          root.innerHTML = `<div class="tablewrap"><table><thead><tr><th>时间</th><th>人员</th><th>操作</th><th>对象</th></tr></thead><tbody>${(d.audit || []).map((x) => `<tr><td>${new Date(x.created_at).toLocaleString()}</td><td>${esc(x.actor_name)}</td><td>${esc(x.action)}</td><td>${esc(x.entity_type)} #${esc(x.entity_id)}</td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function modal(html) {
+        $("modalRoot").innerHTML =
+          `<div class="modalback" onclick="if(event.target===this)app.closeModal()"><section class="modal">${html}</section></div>`;
+      }
+      function closeModal() {
+        $("modalRoot").innerHTML = "";
+        state.editor = null;
+        state.announcementEditor = null;
+        state.image = null;
+      }
+      function distinct(key) {
+        return [
+          ...new Set(state.data.items.map((x) => x[key]).filter(Boolean)),
+        ];
+      }
+      function numbering(e) {
+        const items = state.data.items.filter((x) => x.id !== e.id),
+          sameProblem = items.find(
+            (x) => norm(x.problem_title) === norm(e.problem_title),
+          );
+        const p =
+            sameProblem?.problem_code ||
+            String(
+              Math.max(0, ...items.map((x) => Number(x.problem_code) || 0)) + 1,
+            ),
+          pis = items.filter((x) => x.problem_code === p),
+          sameSituation = pis.find(
+            (x) => norm(x.situation_label) === norm(e.situation_label),
+          ),
+          s = sameSituation
+            ? Number((sameSituation.answer_code || "").split("-")[1]) || 1
+            : Math.max(
+                0,
+                ...pis.map(
+                  (x) => Number((x.answer_code || "").split("-")[1]) || 0,
+                ),
+              ) + 1,
+          sis = pis.filter(
+            (x) => norm(x.situation_label) === norm(e.situation_label),
+          ),
+          dup = sis.find((x) => norm(x.platform) === norm(e.platform));
+        if (dup)
+          return {
+            problem_code: p,
+            answer_code: dup.answer_code,
+            warning: "这个组合已经有答案，请直接修改原答案",
+          };
+        if (!e.platform) return { problem_code: p, answer_code: `${p}-${s}` };
+        const n =
+          Math.max(
+            0,
+            ...sis.map((x) => Number((x.answer_code || "").split("-")[2]) || 0),
+          ) + 1;
+        return { problem_code: p, answer_code: `${p}-${s}-${n}` };
+      }
+      function norm(v) {
+        return String(v || "")
+          .trim()
+          .toLowerCase();
+      }
+      function edit(id) {
+        const isEditor = state.data.user.role === "editor";
+        if (isEditor && !id) return renderRequestTypeChooser();
+        const old = id ? state.data.items.find((x) => x.id === id) : null;
+        state.editor = old
+          ? {
+              ...old,
+              request_type: isEditor ? "edit" : null,
+              request_reason: "",
+              request_reason_detail: "",
+              member_question: "",
+            }
+          : {
+              id: null,
+              answer_code: "",
+              problem_code: "",
+              problem_title: "",
+              situation_label: "",
+              platform: "",
+              answer_text: "",
+              image_key: null,
+              request_type: null,
+              request_reason: "",
+              request_reason_detail: "",
+              member_question: "",
+            };
+        state.image = null;
+        renderEditor();
+      }
+      function renderRequestTypeChooser() {
+        modal(
+          `<header><div><h2>提出申请</h2><p>请选择这次要回报的类型</p></div><button onclick="app.closeModal()">×</button></header><div class="card-list"><button class="card" onclick="app.closeModal();app.notifyRequestEdit()"><div><strong>修正现有答案</strong><small>请在需要修正的答案右侧点击“申请修改”</small></div></button><button class="card" onclick="app.startRequest('supplement')"><div><strong>补充现有问题的答案</strong><small>问题已存在，但目前找不到适合的回复</small></div></button><button class="card" onclick="app.startRequest('new_problem')"><div><strong>建立全新问题</strong><small>过去没有遇过，需要新增标准答案</small></div></button></div><footer><button onclick="app.closeModal()">取消</button></footer>`,
+        );
+      }
+      function startRequest(type) {
+        state.editor = {
+          id: null,
+          draft_id: null,
+          answer_code: "",
+          problem_code: "",
+          problem_title: "",
+          situation_label: "",
+          platform: "",
+          answer_text: "",
+          image_key: null,
+          request_type: type,
+          request_reason: "",
+          request_reason_detail: "",
+          member_question: "",
+        };
+        state.image = null;
+        renderEditor();
+      }
+      function editDraft(id) {
+        const draft = (state.data.my_drafts || []).find(
+          (item) => Number(item.id) === Number(id),
+        );
+        if (!draft || draft.status !== "unprocessed")
+          return notify("这笔申请已经处理");
+        state.editor = {
+          ...draft.proposed_json,
+          draft_id: draft.id,
+          request_type: draft.request_type,
+          request_reason: draft.request_reason || "",
+          request_reason_detail: "",
+        };
+        state.image = null;
+        renderEditor();
+      }
+      function renderEditor() {
+        const e = state.editor,
+          n = e.id ? e : numbering(e),
+          problems = distinct("problem_title"),
+          situations = distinct("situation_label"),
+          platforms = distinct("platform"),
+          isEditor = state.data.user.role === "editor",
+          title = isEditor
+            ? e.request_type === "edit"
+              ? "修正现有答案"
+              : e.request_type === "supplement"
+                ? "补充现有问题的答案"
+                : "建立全新问题"
+            : e.id
+              ? "修改标准答案"
+              : "新增标准答案",
+          description = isEditor
+            ? "提交后会进入管理后台，正式答案不会立即改变"
+            : "问题编号与答案编号会自动产生",
+          submitLabel = isEditor
+            ? e.draft_id
+              ? "保存申请修改"
+              : "提交申请"
+            : "保存并发布",
+          typeIsEdit = isEditor && e.request_type === "edit",
+          typeIsNew = isEditor && e.request_type !== "edit";
+        modal(
+          `<header><div><h2>${title}</h2><p>${description}</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid">${!isEditor || typeIsEdit ? `<label>答案编号<input id="answerCode" class="field readonly" readonly value="${esc(e.id ? e.answer_code : n.answer_code)}"></label><label>问题编号<input id="problemCode" class="field readonly" readonly value="${esc(e.id ? e.problem_code : n.problem_code)}"></label>` : ""}<label class="wide">问题名称<input class="field" list="problemOpts" value="${esc(e.problem_title)}" oninput="app.editorField('problem_title',this.value)"></label><label>情况<input class="field" list="situationOpts" value="${esc(e.situation_label)}" oninput="app.editorField('situation_label',this.value)"></label><label>平台（可留空）<input class="field" list="platformOpts" value="${esc(e.platform || "")}" oninput="app.editorField('platform',this.value)"></label><datalist id="problemOpts">${problems.map((x) => `<option value="${esc(x)}">`).join("")}</datalist><datalist id="situationOpts">${situations.map((x) => `<option value="${esc(x)}">`).join("")}</datalist><datalist id="platformOpts">${platforms.map((x) => `<option value="${esc(x)}">`).join("")}</datalist>${!isEditor ? `<div id="editorWarning" class="warning ${n.warning ? "" : "hidden"}">${esc(n.warning || "")}</div>` : ""}${typeIsEdit ? `<label class="wide">修改原因<select class="field" onchange="app.editorField('request_reason',this.value)"><option value="">请选择</option>${["错字或用词错误", "答案内容已失效", "平台内容不同", "回复内容不完整", "其他"].map((reason) => `<option value="${reason}" ${e.request_reason === reason ? "selected" : ""}>${reason}</option>`).join("")}</select></label><label class="wide">补充说明（选填）<input class="field" value="${esc(e.request_reason_detail || "")}" oninput="app.editorField('request_reason_detail',this.value)"></label>` : ""}${typeIsNew ? `<label class="wide">会员实际询问内容<textarea class="field" oninput="app.editorField('member_question',this.value)">${esc(e.member_question || "")}</textarea></label>` : ""}<label class="wide">${typeIsNew ? "建议回复／标准答案（选填）" : "标准答案"}<textarea class="field" oninput="app.editorField('answer_text',this.value)">${esc(e.answer_text || "")}</textarea></label><details class="wide"><summary>需要附图或更换图片时展开</summary><label>答案附图（最多一张）<input class="field" type="file" accept="image/*" onchange="app.chooseImage(this.files[0])"><small>${e.image_key ? "已保留原有图片" : "尚未选择图片"}</small></label></details></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.saveEditor()">${submitLabel}</button></footer>`,
+        );
+      }
+      function editorField(k, v) {
+        state.editor[k] = v;
+        if (!state.editor.id) {
+          const n = numbering(state.editor);
+          if ($("answerCode")) $("answerCode").value = n.answer_code;
+          if ($("problemCode")) $("problemCode").value = n.problem_code;
+          const w = $("editorWarning");
+          if (!w) return;
+          w.textContent = n.warning || "";
+          w.classList.toggle("hidden", !n.warning);
+        }
+      }
+      async function compress(file) {
+        if (!file || !file.type.startsWith("image/"))
+          throw new Error("请选择图片");
+        const bmp = await createImageBitmap(file);
+        let scale = Math.min(1, 1400 / Math.max(bmp.width, bmp.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(bmp.width * scale);
+        canvas.height = Math.round(bmp.height * scale);
+        canvas
+          .getContext("2d")
+          .drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise((ok) =>
+          canvas.toBlob(ok, "image/webp", 0.82),
+        );
+        return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".webp", {
+          type: "image/webp",
+        });
+      }
+      async function chooseImage(file) {
+        try {
+          notify("正在处理图片…");
+          state.image = await compress(file);
+          notify("图片已选择");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function saveEditor() {
+        try {
+          const e = { ...state.editor };
+          const isEditor = state.data.user.role === "editor";
+          if (!e.problem_title.trim() || !e.situation_label.trim())
+            throw new Error("请填写问题名称与情况");
+          if (!isEditor && !e.answer_text.trim())
+            throw new Error("请填写标准答案");
+          if (isEditor && e.request_type === "edit") {
+            if (!e.answer_text.trim())
+              throw new Error("请填写修改后的标准答案");
+            if (!e.request_reason) throw new Error("请选择修改原因");
+            if (e.request_reason === "其他" && !e.request_reason_detail.trim())
+              throw new Error("请填写其他修改原因");
+            e.request_reason = [e.request_reason, e.request_reason_detail]
+              .filter(Boolean)
+              .join("：");
+          }
+          if (
+            isEditor &&
+            e.request_type !== "edit" &&
+            !e.member_question.trim()
+          )
+            throw new Error("请填写会员实际询问内容");
+          if (state.image) {
+            const f = new FormData();
+            f.set("image", state.image);
+            e.image_key = (await request(null, f)).key;
+          }
+          const result = await request({
+            action: isEditor ? "saveDraft" : "saveAnswer",
+            [isEditor ? "draft" : "answer"]: e,
+          });
+          closeModal();
+          await load();
+          notify(result.mode === "draft" ? "申请已成功提出" : "答案已发布");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function myDraftsModal() {
+        const drafts = (state.data.my_drafts || []).filter(
+            (item) => item.status === state.draftFilter,
+          ),
+          typeLabels = {
+            edit: "修正答案",
+            supplement: "补充答案",
+            new_problem: "全新问题",
+          };
+        modal(
+          `<header><div><h2>我的申请</h2><p>未处理的申请可以修改或取消</p></div><button onclick="app.closeModal()">×</button></header><div class="list-tabs"><button class="${state.draftFilter === "unprocessed" ? "active" : ""}" onclick="app.draftFilter('unprocessed')">未处理</button><button class="${state.draftFilter === "processed" ? "active" : ""}" onclick="app.draftFilter('processed')">已处理</button></div><div class="card-list">${drafts.length ? drafts.map((x) => `<article class="card draft-card"><div><strong>${esc(typeLabels[x.request_type] || "申请")}｜${esc(x.proposed_json?.problem_title || "")}</strong><small>${esc(x.proposed_json?.member_question || x.proposed_json?.answer_text || "")}</small><small>${new Date(x.updated_at || x.created_at).toLocaleString()}</small>${x.review_note ? `<small>管理员备注：${esc(x.review_note)}</small>` : ""}</div><b>${x.status === "unprocessed" ? "未处理" : "已处理"}</b>${x.status === "unprocessed" ? `<div class="draft-actions"><button onclick="app.editDraft(${x.id})">修改</button><button class="danger" onclick="app.cancelDraft(${x.id})">取消申请</button></div>` : ""}</article>`).join("") : '<div class="empty">目前没有申请记录</div>'}</div><footer><button class="primary" onclick="app.closeModal()">完成</button></footer>`,
+        );
+      }
+      function setDraftFilter(status) {
+        state.draftFilter = status;
+        myDraftsModal();
+      }
+      async function cancelDraft(id) {
+        if (!confirm("确定取消这笔申请？")) return;
+        try {
+          await request({ action: "cancelDraft", id });
+          await load();
+          myDraftsModal();
+          notify("申请已取消");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function bulkModal() {
+        modal(
+          `<header><div><h2>批量整理答案</h2><p>已选择 ${state.selected.size} 笔；留空代表不修改</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><label class="wide">问题分类<input id="bulkProblem" class="field" list="bp" placeholder="不修改；或选择／输入问题名称"></label><label>情况<input id="bulkSituation" class="field" list="bs" placeholder="不修改"></label><label>平台<input id="bulkPlatform" class="field" list="bpl" placeholder="不修改"><span><input id="bulkClear" type="checkbox"> 改为不分平台</span></label><datalist id="bp">${distinct(
+            "problem_title",
+          )
+            .map((x) => `<option value="${esc(x)}">`)
+            .join("")}</datalist><datalist id="bs">${distinct("situation_label")
+            .map((x) => `<option value="${esc(x)}">`)
+            .join("")}</datalist><datalist id="bpl">${distinct("platform")
+            .map((x) => `<option value="${esc(x)}">`)
+            .join(
+              "",
+            )}</datalist></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.saveBulk()">确认批量修改</button></footer>`,
+        );
+      }
+      async function saveBulk() {
+        try {
+          await request({
+            action: "bulkUpdateAnswers",
+            ids: [...state.selected],
+            changes: {
+              problem_title: $("bulkProblem").value,
+              situation_label: $("bulkSituation").value,
+              platform: $("bulkPlatform").value,
+              clear_platform: $("bulkClear").checked,
+            },
+          });
+          state.selected.clear();
+          closeModal();
+          await load();
+          notify("批量整理完成");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function orderModal() {
+        const ps = problems(false);
+        modal(
+          `<header><div><h2>调整问题列表顺序</h2><p>移动后会自动重编问题编号与旗下答案编号</p></div><button onclick="app.closeModal()">×</button></header><div class="order-list">${ps.map((p, i) => `<article class="order-row"><b>${i + 1}</b><div><strong>${esc(p.code)}｜${esc(p.title)}</strong><small>${p.items.length} 笔答案</small></div><button ${i === 0 ? "disabled" : ""} onclick="app.move('${esc(p.code)}','up')">↑ 上移</button><button ${i === ps.length - 1 ? "disabled" : ""} onclick="app.move('${esc(p.code)}','down')">↓ 下移</button></article>`).join("")}</div><footer><button class="primary" onclick="app.closeModal()">完成</button></footer>`,
+        );
+      }
+      async function move(code, direction) {
+        try {
+          await request({
+            action: "moveProblem",
+            problem_code: code,
+            direction,
+          });
+          await load();
+          orderModal();
+          notify("问题已移动并重新编号");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function saveProblemTags(code) {
+        const value = $("tagInput_" + code).value;
+        try {
+          await request({
+            action: "updateProblemTags",
+            problem_code: code,
+            search_tags: value,
+          });
+          await load();
+          notify("搜索标注已保存");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function remove(id) {
+        if (!confirm("确定删除这笔答案？")) return;
+        try {
+          await request({ action: "deleteAnswer", id });
+          state.selected.delete(id);
+          await load();
+          notify("已移入回收站");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function restore(id) {
+        try {
+          await request({ action: "restoreAnswer", id });
+          await load();
+          notify("答案已恢复");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function randomIndex(max) {
+        const values = new Uint32Array(1);
+        crypto.getRandomValues(values);
+        return values[0] % max;
+      }
+      function generatePassword() {
+        const lower = "abcdefghjkmnpqrstuvwxyz",
+          upper = "ABCDEFGHJKMNPQRSTUVWXYZ",
+          digits = "23456789",
+          symbols = "!@#$%";
+        const all = lower + upper + digits + symbols,
+          chars = [
+            lower[randomIndex(lower.length)],
+            upper[randomIndex(upper.length)],
+            digits[randomIndex(digits.length)],
+            symbols[randomIndex(symbols.length)],
+          ];
+        while (chars.length < 14) chars.push(all[randomIndex(all.length)]);
+        for (let i = chars.length - 1; i > 0; i--) {
+          const j = randomIndex(i + 1);
+          [chars[i], chars[j]] = [chars[j], chars[i]];
+        }
+        return chars.join("");
+      }
+      function randomAccount() {
+        const digits = String(randomIndex(1000000)).padStart(6, "0");
+        $("newUsername").value = `staff${digits}`;
+        $("newDisplay").value = `员工${digits.slice(-4)}`;
+        $("newPassword").value = generatePassword();
+        $("newPassword").type = "text";
+        $("newRole").value = "viewer";
+        notify("已生成账号与密码");
+      }
+      function credentialText(username, password) {
+        return `标准答案中心\n账号：${username}\n密码：${password}\n网址：${location.origin}${location.pathname}`;
+      }
+      async function copyCredentials(username, password) {
+        await navigator.clipboard.writeText(credentialText(username, password));
+        notify("账号密码已复制");
+      }
+      function credentialModal(username, password, title = "账号已建立") {
+        state.credentials = { username, password };
+        modal(
+          `<header><div><h2>${title}</h2><p>密码只在这里显示，请立即复制并交给使用者</p></div><button onclick="app.closeModal()">×</button></header><div class="credential-box"><div class="credential-row"><b>账号</b><code>${esc(username)}</code></div><div class="credential-row"><b>密码</b><code>${esc(password)}</code></div></div><footer><button onclick="app.closeModal()">完成</button><button class="primary" onclick="app.copyCurrentCredentials()">一键复制账号密码</button></footer>`,
+        );
+      }
+      function copyCurrentCredentials() {
+        return copyCredentials(
+          state.credentials.username,
+          state.credentials.password,
+        );
+      }
+      async function createUser() {
+        const username = $("newUsername").value.trim(),
+          display_name = $("newDisplay").value.trim(),
+          password = $("newPassword").value,
+          role = $("newRole").value;
+        try {
+          await request({
+            action: "createUser",
+            username,
+            display_name,
+            password,
+            role,
+          });
+          await load();
+          credentialModal(username, password);
+          notify("账号已建立");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function updateUser(id, role, status) {
+        try {
+          await request({ action: "updateUser", id, role, status });
+          await load();
+          notify("权限已更新");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function resetPassword(id) {
+        const user = (state.data.users || []).find((x) => x.id === id),
+          password = prompt(
+            `为 ${user?.display_name || "这个账号"} 设置新密码（至少 8 个字符）`,
+          );
+        if (!password) return;
+        try {
+          await request({ action: "resetPassword", id, password });
+          notify("密码已重置");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function resetAndCopy(id, username) {
+        if (!confirm(`确定为 ${username} 生成新密码？旧密码会立即失效。`))
+          return;
+        const password = generatePassword();
+        try {
+          await request({ action: "resetPassword", id, password });
+          credentialModal(username, password, "新密码已产生");
+          try {
+            await copyCredentials(username, password);
+          } catch {
+            notify("新密码已产生，请在窗口内手动复制");
+          }
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function deleteUser(id, username) {
+        if (
+          !confirm(
+            `确定删除账号 ${username}？\n\n删除后会立即停止使用，过去的答案与操作记录会保留。`,
+          )
+        )
+          return;
+        try {
+          await request({ action: "deleteUser", id });
+          await load();
+          notify("账号已删除");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function setAdminDraftFilter(status) {
+        state.draftFilter = status;
+        renderAdmin();
+      }
+      function processDraftModal(id) {
+        modal(
+          `<header><div><h2>标记申请已处理</h2><p>请先在答案管理手动完成需要的新增或修改</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><label class="wide">管理员备注（选填）<textarea id="draftReviewNote" class="field" placeholder="例如：已新增答案，或说明不加入答案库的原因"></textarea></label></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.processDraft(${id})">确认已处理</button></footer>`,
+        );
+      }
+      async function processDraft(id) {
+        try {
+          await request({
+            action: "markDraftProcessed",
+            id,
+            review_note: $("draftReviewNote").value,
+          });
+          closeModal();
+          await load();
+          renderAdmin();
+          notify("申请已标记为已处理");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      function announcementEdit(id) {
+        const old = id
+          ? (state.data.all_announcements || []).find(
+              (item) => Number(item.id) === Number(id),
+            )
+          : null;
+        state.announcementEditor = old
+          ? { ...old }
+          : {
+              id: null,
+              title: "",
+              body: "",
+              image_key: null,
+              is_pinned: false,
+            };
+        state.image = null;
+        const e = state.announcementEditor;
+        modal(
+          `<header><div><h2>${e.id ? "修改公告" : "发布公告"}</h2><p>所有使用者都会看到这则公告</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><label class="wide">公告标题<input id="announcementTitle" class="field" value="${esc(e.title)}"></label><label class="wide">公告内容<textarea id="announcementBody" class="field">${esc(e.body)}</textarea></label><label class="wide">公告图片（最多一张）<input class="field" type="file" accept="image/*" onchange="app.chooseImage(this.files[0])"><small>${e.image_key ? "已保留原有图片" : "尚未选择图片"}</small></label><label class="wide"><span><input id="announcementPinned" type="checkbox" ${e.is_pinned ? "checked" : ""}> 置顶公告</span></label></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.saveAnnouncement()">${e.id ? "保存并重新通知" : "发布公告"}</button></footer>`,
+        );
+      }
+      async function saveAnnouncement() {
+        try {
+          const e = { ...state.announcementEditor };
+          e.title = $("announcementTitle").value;
+          e.body = $("announcementBody").value;
+          e.is_pinned = $("announcementPinned").checked;
+          if (state.image) {
+            const f = new FormData();
+            f.set("image", state.image);
+            e.image_key = (await request(null, f)).key;
+          }
+          await request({ action: "saveAnnouncement", ...e });
+          closeModal();
+          await load();
+          renderAdmin();
+          notify(e.id ? "公告已更新" : "公告已发布");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function archiveAnnouncement(id) {
+        if (!confirm("确定下架这则公告？")) return;
+        try {
+          await request({ action: "archiveAnnouncement", id });
+          await load();
+          renderAdmin();
+          notify("公告已下架");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      async function restoreHistory(id) {
+        try {
+          await request({ action: "restoreHistory", id });
+          await load();
+          notify("已恢复历史版本");
+        } catch (e) {
+          notify(e.message);
+        }
+      }
+      Object.assign(window, {
+        app: {
+          problem: (c) => {
+            state.problem = c;
+            state.situation = null;
+            state.platform = null;
+            render();
+          },
+          situation: (s) => {
+            state.situation = state.situation === s ? null : s;
+            state.platform = null;
+            render();
+          },
+          platform: (p) => {
+            state.platform = state.platform === p ? null : p;
+            render();
+          },
+          listMode,
+          clearSearch,
+          previewImage,
+          copyText,
+          copyBoth,
+          closeAnnouncements,
+          previewAnnouncementImage,
+          readAnnouncement,
+          toggleFavorite,
+          favoriteDragStart,
+          favoriteDragOver,
+          favoriteDragEnd,
+          favoriteDrop,
+          openFavorite,
+          openAdmin,
+          closeAdmin,
+          tab: (k) => {
+            state.adminTab = k;
+            renderAdmin();
+          },
+          adminProblem: setAdminProblem,
+          select: (id, on) => {
+            on ? state.selected.add(id) : state.selected.delete(id);
+            renderAdmin();
+          },
+          selectAll: (on) => {
+            for (const item of adminAnswerItems())
+              on ? state.selected.add(item.id) : state.selected.delete(item.id);
+            renderAdmin();
+          },
+          clearSelection: () => {
+            state.selected.clear();
+            renderAdmin();
+          },
+          edit,
+          startRequest,
+          notifyRequestEdit: () => notify("请在要修正的答案右侧点击“申请修改”"),
+          editDraft,
+          editorField,
+          chooseImage,
+          saveEditor,
+          myDraftsModal,
+          draftFilter: setDraftFilter,
+          cancelDraft,
+          closeModal,
+          bulkModal,
+          saveBulk,
+          orderModal,
+          move,
+          saveProblemTags,
+          remove,
+          restore,
+          randomAccount,
+          copyCredentials,
+          copyCurrentCredentials,
+          createUser,
+          updateUser,
+          resetPassword,
+          resetAndCopy,
+          deleteUser,
+          adminDraftFilter: setAdminDraftFilter,
+          processDraftModal,
+          processDraft,
+          announcementEdit,
+          saveAnnouncement,
+          archiveAnnouncement,
+          restoreHistory,
+        },
+      });
+      const favoriteListObserver = new MutationObserver(() => {
+        if (state.listMode === "favorites") enableFavoriteSorting();
+      });
+      favoriteListObserver.observe($("problemList"), { childList: true });
+      const platformToneObserver = new MutationObserver(applyPlatformTones);
+      platformToneObserver.observe($("answerPane"), {
+        childList: true,
+        subtree: true,
+      });
+      $("searchInput").addEventListener("input", (e) => {
+        state.query = e.target.value;
+        render();
+      });
+      $("editorCreateButton").onclick = () => edit();
+      $("myDraftsButton").onclick = myDraftsModal;
+      $("announcementsButton").onclick = openAnnouncements;
+      $("adminButton").onclick = openAdmin;
+      $("logoutButton").onclick = async () => {
+        await supabase.auth.signOut();
+        state.data = null;
+        showLogin();
+      };
+      $("loginForm").onsubmit = async (e) => {
+        e.preventDefault();
+        $("loginError").textContent = "";
+        const { error } = await supabase.auth.signInWithPassword({
+          email: usernameEmail($("loginUser").value),
+          password: $("loginPassword").value,
+        });
+        if (error) {
+          $("loginError").textContent = "账号或密码不正确";
+          return;
+        }
+        try {
+          showApp();
+          await load();
+        } catch (err) {
+          $("loginError").textContent = err.message;
+          showLogin();
+        }
+      };
+      const initial = await session();
+      if (initial) {
+        showApp();
+        try {
+          await load();
+        } catch {
+          showLogin();
+        }
+      } else showLogin();
+      setInterval(() => {
+        if (state.data) load().catch(() => {});
+      }, 30000);
+    </script>
+  </body>
 </html>
