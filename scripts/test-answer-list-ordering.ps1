@@ -13,6 +13,7 @@ $checks = @(
   @{ Name = 'groups answers by situation'; Pattern = 'class="answer-group' },
   @{ Name = 'uses compact answer rows'; Pattern = 'class="answer-row' },
   @{ Name = 'keeps copy actions on every row'; Pattern = 'answer-row-actions' },
+  @{ Name = 'copies image and text from the platform button'; Pattern = 'class="answer-platform"[^>]+onclick="app\.copyBoth' },
   @{ Name = 'keeps optional image preview'; Pattern = 'previewImage' }
 )
 
