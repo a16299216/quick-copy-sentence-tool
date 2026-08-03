@@ -11,7 +11,7 @@ $cleanupReportExists = Test-Path (Join-Path $repoRoot 'ANSWER_TEXT_CLEANUP.md')
 
 $checks = [ordered]@{
   compact_numeric_search = $html.Contains('codeCompact.startsWith(compact)')
-  numeric_search_excludes_answer_text = $html.Contains('numeric =') -and $html.Contains('if (numeric)')
+  numeric_search_excludes_answer_text = $html.Contains('numeric =') -and $html.Contains('if (numeric && !tagHit)')
   exact_answer_priority = $html.Contains('exactAnswerId') -and $html.Contains('exactRank')
   exact_answer_group_first = $html.Contains('const exactSituation = c.exactAnswerId')
   search_result_count = $html.Contains('matchedAnswerCount')

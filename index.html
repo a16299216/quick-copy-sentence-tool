@@ -703,6 +703,29 @@
         color: var(--primary);
         font-style: normal;
       }
+      .favorite-row > span,
+      .favorite-row > b {
+        cursor: pointer;
+      }
+      .favorite-row-actions {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .favorite-row-actions button {
+        min-width: 28px;
+        min-height: 28px;
+        border: 1px solid #d5def0;
+        border-radius: 7px;
+        padding: 3px 7px;
+        color: var(--primary);
+        background: #fff;
+        line-height: 1;
+      }
+      .favorite-row-actions button:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
       .favorite-empty {
         display: grid;
         place-items: center;
@@ -1329,6 +1352,7 @@
         editor: null,
         image: null,
         announcementEditor: null,
+        announcementFilter: "published",
         dragFavoriteId: null,
         suppressFavoriteClick: false,
       };
@@ -1352,6 +1376,21 @@
         t.textContent = message;
         t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 2400);
+      }
+      function beginBusy(busyLabel = "处理中...") {
+        const button =
+          document.activeElement instanceof HTMLButtonElement
+            ? document.activeElement
+            : null;
+        if (!button || button.disabled) return () => {};
+        const originalLabel = button.textContent;
+        button.disabled = true;
+        button.textContent = busyLabel;
+        return () => {
+          if (!button.isConnected) return;
+          button.disabled = false;
+          button.textContent = originalLabel;
+        };
       }
       async function session() {
         return (await supabase.auth.getSession()).data.session;
@@ -1415,7 +1454,10 @@
           .map((p) => {
             let matchedItems = [],
               exactAnswerId = null;
-            if (numeric) {
+            const tagHit = p.search_tags.some((tag) =>
+              String(tag).toLowerCase().includes(q),
+            );
+            if (numeric && !tagHit) {
               matchedItems = p.items.filter((i) => {
                 const code = String(i.answer_code || ""),
                   codeCompact = code.replace(/\D/g, ""),
@@ -1454,9 +1496,10 @@
               ...p,
               matchedItems,
               exactAnswerId,
-              numericSearch: numeric,
+              numericSearch: numeric && !tagHit,
               problemOnly:
-                numeric && String(p.code).replace(/\D/g, "") === compact,
+                tagHit ||
+                (numeric && String(p.code).replace(/\D/g, "") === compact),
             };
           })
           .filter((p) => p.matchedItems.length);
@@ -1571,9 +1614,10 @@
         $("avatar").textContent = state.data.user.display_name.slice(0, 1);
         $("announcementCount").textContent = unreadCount;
         $("announcementCount").classList.toggle("hidden", !unreadCount);
-        $("problemCount").textContent = state.query.trim()
-          ? `${ps.length}/${matchedAnswerCount}`
-          : problems(false).length;
+        const problemCountLabel = state.query.trim()
+          ? `${ps.length} 个问题 / ${matchedAnswerCount} 笔答案`
+          : `${problems(false).length} 个问题`;
+        $("problemCount").textContent = problemCountLabel;
         $("problemsTab").title = state.query.trim()
           ? `找到 ${ps.length} 个问题／${matchedAnswerCount} 笔答案`
           : "完整问题列表";
@@ -1606,8 +1650,8 @@
             : favorites.length
               ? favorites
                   .map(
-                    (a) =>
-                      `<button class="favorite-row ${Number(a.id) === activeAnswerId ? "active" : ""}" onclick="app.openFavorite(${a.id})"><b>${esc(a.answer_code)}</b><span><strong>${esc(a.problem_title)}</strong><small>${esc(a.situation_label)} · ${esc(a.platform || "通用")}</small></span><i>›</i></button>`,
+                    (a, index) =>
+                      `<div class="favorite-row ${Number(a.id) === activeAnswerId ? "active" : ""}" draggable="${state.query.trim() ? "false" : "true"}" data-favorite-id="${a.id}" ondragstart="app.favoriteDragStart(event,${a.id})" ondragover="app.favoriteDragOver(event,${a.id})" ondragleave="event.currentTarget.classList.remove('drag-over')" ondrop="app.favoriteDrop(event,${a.id})" ondragend="app.favoriteDragEnd()"><b onclick="app.openFavorite(${a.id})">${esc(a.answer_code)}</b><span onclick="app.openFavorite(${a.id})"><strong>${esc(a.problem_title)}</strong><small>${esc(a.situation_label)} · ${esc(a.platform || "通用")}</small></span><div class="favorite-row-actions"><button title="上移" ${state.query.trim() || index === 0 ? "disabled" : ""} onclick="event.stopPropagation();app.moveFavorite(${a.id}, -1)">↑</button><button title="下移" ${state.query.trim() || index === favorites.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();app.moveFavorite(${a.id}, 1)">↓</button><button title="打开答案" onclick="event.stopPropagation();app.openFavorite(${a.id})">›</button></div></div>`,
                   )
                   .join("")
               : '<div class="favorite-empty">还没有常用回答<br>请在答案页面点击“加入常用”</div>';
@@ -1838,6 +1882,22 @@
           to = order.indexOf(destinationId);
         if (from < 0 || to < 0) return;
         order.splice(to, 0, order.splice(from, 1)[0]);
+        state.dragFavoriteId = null;
+        await saveFavoriteOrder(order, previous);
+      }
+      async function moveFavorite(id, direction) {
+        if (state.query.trim()) return notify("清除搜索内容后再调整顺序");
+        const previous = (state.data.favorites || []).map((item) => ({
+            ...item,
+          })),
+          order = previous.map((item) => Number(item.answer_id)),
+          from = order.indexOf(Number(id)),
+          to = from + Number(direction);
+        if (from < 0 || to < 0 || to >= order.length) return;
+        order.splice(to, 0, order.splice(from, 1)[0]);
+        await saveFavoriteOrder(order, previous);
+      }
+      async function saveFavoriteOrder(order, previous) {
         const byId = new Map(
           previous.map((item) => [Number(item.answer_id), item]),
         );
@@ -1846,7 +1906,6 @@
           answer_id,
           sort_order: index + 1,
         }));
-        state.dragFavoriteId = null;
         render();
         try {
           await request({ action: "reorderFavorites", answer_ids: order });
@@ -1976,13 +2035,18 @@
                         x.created_by_name ||
                         applicant?.display_name ||
                         "未知账号";
-                    return `<article class="card draft-card"><div><strong>${esc(typeLabels[x.request_type] || "申请")}｜${esc(after.problem_title || "")}</strong><small>申请人：${esc(applicantName)} · ${new Date(x.updated_at || x.created_at).toLocaleString()}</small>${x.request_reason ? `<small>申请原因：${esc(x.request_reason)}</small>` : ""}${after.member_question ? `<small>会员询问：${esc(after.member_question)}</small>` : ""}${x.request_type === "edit" ? `<div class="diff-box"><section><small>原文字</small>${esc(before.answer_text || "")}</section><section><small>新文字</small>${esc(after.answer_text || "")}</section></div>` : `<small>建议回复：${esc(after.answer_text || "未填写")}</small>`}${x.review_note ? `<small>管理员备注：${esc(x.review_note)}</small>` : ""}</div><b>${x.status === "unprocessed" ? "未处理" : "已处理"}</b>${x.status === "unprocessed" ? `<button class="primary" onclick="app.processDraftModal(${x.id})">标记已处理</button>` : ""}</article>`;
+                    return `<article class="card draft-card"><div><strong>${esc(typeLabels[x.request_type] || "申请")}｜${esc(after.problem_title || "")}</strong><small>申请人：${esc(applicantName)} · ${new Date(x.updated_at || x.created_at).toLocaleString()}</small>${x.request_reason ? `<small>申请原因：${esc(x.request_reason)}</small>` : ""}${after.member_question ? `<small>会员询问：${esc(after.member_question)}</small>` : ""}${x.request_type === "edit" ? `<div class="diff-box"><section><small>原文字</small>${esc(before.answer_text || "")}</section><section><small>新文字</small>${esc(after.answer_text || "")}</section></div>` : `<small>建议回复：${esc(after.answer_text || "未填写")}</small>`}${x.review_note ? `<small>管理员备注：${esc(x.review_note)}</small>` : ""}</div><b>${x.status === "unprocessed" ? "未处理" : "已处理"}</b><button class="draft-prefill-button" onclick="app.openDraftInAnswerManager(${x.id})">带入答案管理</button>${x.status === "unprocessed" ? `<button class="primary" onclick="app.processDraftModal(${x.id})">标记已处理</button>` : ""}</article>`;
                   })
                   .join("")
               : '<div class="empty">目前没有申请记录</div>'
           }</div>`;
         } else if (state.adminTab === "announcements") {
-          root.innerHTML = `<div class="toolbar"><div><h3>公告管理</h3><small>所有账号都会看到相同公告</small></div><div class="toolbar-actions"><button class="primary" onclick="app.announcementEdit()">＋ 发布公告</button></div></div><div class="card-list">${(d.all_announcements || []).length ? (d.all_announcements || []).map((item) => `<article class="card announcement-admin-card"><div><strong>${item.is_pinned ? "置顶｜" : ""}${esc(item.title)}</strong><small>${esc(item.body)}</small><small>${new Date(item.updated_at || item.created_at).toLocaleString()} · ${item.status === "published" ? "已发布" : "已下架"}</small></div>${item.status === "published" ? `<button onclick="app.announcementEdit(${item.id})">修改</button><button class="danger" onclick="app.archiveAnnouncement(${item.id})">下架</button>` : ""}</article>`).join("") : '<div class="empty">目前没有公告</div>'}</div>`;
+          const announcements = (d.all_announcements || []).filter(
+            (item) =>
+              state.announcementFilter === "all" ||
+              item.status === state.announcementFilter,
+          );
+          root.innerHTML = `<div class="toolbar"><div><h3>公告管理</h3><small>所有账号都会看到相同公告</small></div><div class="toolbar-actions"><button class="primary" onclick="app.announcementEdit()">＋ 发布公告</button></div></div><div class="list-tabs"><button class="${state.announcementFilter === "published" ? "active" : ""}" onclick="app.announcementFilter('published')">已发布</button><button class="${state.announcementFilter === "archived" ? "active" : ""}" onclick="app.announcementFilter('archived')">已下架</button><button class="${state.announcementFilter === "all" ? "active" : ""}" onclick="app.announcementFilter('all')">全部</button></div><div class="card-list">${announcements.length ? announcements.map((item) => `<article class="card announcement-admin-card"><div><strong>${item.is_pinned ? "置顶｜" : ""}${esc(item.title)}</strong><small>${esc(item.body)}</small><small>${new Date(item.updated_at || item.created_at).toLocaleString()} · ${item.status === "published" ? "已发布" : "已下架"}</small></div>${item.status === "published" ? `<button onclick="app.announcementEdit(${item.id})">修改</button><button class="danger" onclick="app.archiveAnnouncement(${item.id})">下架</button>` : ""}</article>`).join("") : '<div class="empty">这个分类目前没有公告</div>'}</div>`;
         } else if (state.adminTab === "recycle") {
           root.innerHTML = `<div class="card-list">${(d.deleted_items || []).length ? (d.deleted_items || []).map((x) => `<article class="card"><div><strong>${esc(x.answer_code)}｜${esc(x.problem_title)}</strong><small>${esc(x.answer_text)}</small></div><button class="primary" onclick="app.restore(${x.id})">恢复</button></article>`).join("") : '<div class="empty">回收站目前是空的</div>'}</div>`;
         } else if (state.adminTab === "history") {
@@ -2189,6 +2253,7 @@
         }
       }
       async function saveEditor() {
+        const done = beginBusy("保存中...");
         try {
           const e = { ...state.editor };
           const isEditor = state.data.user.role === "editor";
@@ -2226,6 +2291,8 @@
           notify(result.mode === "draft" ? "申请已成功提出" : "答案已发布");
         } catch (e) {
           notify(e.message);
+        } finally {
+          done();
         }
       }
       function myDraftsModal() {
@@ -2298,6 +2365,7 @@
         );
       }
       async function move(code, direction) {
+        const done = beginBusy("移动中...");
         try {
           await request({
             action: "moveProblem",
@@ -2309,20 +2377,31 @@
           notify("问题已移动并重新编号");
         } catch (e) {
           notify(e.message);
+        } finally {
+          done();
         }
+      }
+      function parseSearchTags(value) {
+        return String(value || "")
+          .split(/[,，、;；\n]+/)
+          .map((tag) => tag.trim())
+          .filter(Boolean);
       }
       async function saveProblemTags(code) {
         const value = $("tagInput_" + code).value;
+        const done = beginBusy("保存中...");
         try {
           await request({
             action: "updateProblemTags",
             problem_code: code,
-            search_tags: value,
+            search_tags: parseSearchTags(value),
           });
           await load();
           notify("搜索标注已保存");
         } catch (e) {
           notify(e.message);
+        } finally {
+          done();
         }
       }
       async function remove(id) {
@@ -2474,12 +2553,52 @@
         state.draftFilter = status;
         renderAdmin();
       }
+      function setAnnouncementFilter(status) {
+        state.announcementFilter = status;
+        renderAdmin();
+      }
+      function openDraftInAnswerManager(id) {
+        const draft = (state.data.drafts || []).find(
+          (item) => Number(item.id) === Number(id),
+        );
+        if (!draft) return notify("找不到这笔申请");
+        const before = draft.original_json || {},
+          after = draft.proposed_json || {},
+          originalId = Number(after.id || before.id),
+          original = (state.data.items || []).find(
+            (item) => Number(item.id) === originalId,
+          );
+        state.adminTab = "answers";
+        state.adminProblem = after.problem_code || before.problem_code || "all";
+        state.editor = {
+          ...(original || {}),
+          ...after,
+          id: draft.request_type === "edit" ? original?.id || originalId : null,
+          answer_code:
+            draft.request_type === "edit"
+              ? original?.answer_code || after.answer_code || ""
+              : "",
+          problem_code:
+            draft.request_type === "edit"
+              ? original?.problem_code || after.problem_code || ""
+              : "",
+          image_key: after.image_key ?? original?.image_key ?? null,
+          request_type: null,
+          request_reason: "",
+          request_reason_detail: "",
+          member_question: "",
+        };
+        state.image = null;
+        renderAdmin();
+        renderEditor();
+      }
       function processDraftModal(id) {
         modal(
           `<header><div><h2>标记申请已处理</h2><p>请先在答案管理手动完成需要的新增或修改</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><label class="wide">管理员备注（选填）<textarea id="draftReviewNote" class="field" placeholder="例如：已新增答案，或说明不加入答案库的原因"></textarea></label></div><footer><button onclick="app.closeModal()">取消</button><button class="primary" onclick="app.processDraft(${id})">确认已处理</button></footer>`,
         );
       }
       async function processDraft(id) {
+        const done = beginBusy("处理中...");
         try {
           await request({
             action: "markDraftProcessed",
@@ -2492,6 +2611,8 @@
           notify("申请已标记为已处理");
         } catch (e) {
           notify(e.message);
+        } finally {
+          done();
         }
       }
       function announcementEdit(id) {
@@ -2516,6 +2637,7 @@
         );
       }
       async function saveAnnouncement() {
+        const done = beginBusy("发布中...");
         try {
           const e = { ...state.announcementEditor };
           e.title = $("announcementTitle").value;
@@ -2533,10 +2655,13 @@
           notify(e.id ? "公告已更新" : "公告已发布");
         } catch (e) {
           notify(e.message);
+        } finally {
+          done();
         }
       }
       async function archiveAnnouncement(id) {
         if (!confirm("确定下架这则公告？")) return;
+        const done = beginBusy("下架中...");
         try {
           await request({ action: "archiveAnnouncement", id });
           await load();
@@ -2544,6 +2669,8 @@
           notify("公告已下架");
         } catch (e) {
           notify(e.message);
+        } finally {
+          done();
         }
       }
       async function restoreHistory(id) {
@@ -2585,6 +2712,7 @@
           favoriteDragOver,
           favoriteDragEnd,
           favoriteDrop,
+          moveFavorite,
           openFavorite,
           openAdmin,
           closeAdmin,
@@ -2633,6 +2761,8 @@
           resetAndCopy,
           deleteUser,
           adminDraftFilter: setAdminDraftFilter,
+          announcementFilter: setAnnouncementFilter,
+          openDraftInAnswerManager,
           processDraftModal,
           processDraft,
           announcementEdit,

@@ -53,8 +53,31 @@ function json(body: unknown, status = 200) {
 function cleanText(value: unknown) {
   return String(value ?? "").trim();
 }
+const protectedPunctuation = new Map(
+  [..."，。；：！？、（）【】《》“”‘’—…"].map((character, index) => [
+    character,
+    String.fromCharCode(0xe000 + index),
+  ]),
+);
+function protectChinesePunctuation(value: string) {
+  let result = value;
+  for (const [character, placeholder] of protectedPunctuation) {
+    result = result.split(character).join(placeholder);
+  }
+  return result;
+}
+function restoreProtectedPunctuation(value: string) {
+  let result = value;
+  for (const [character, placeholder] of protectedPunctuation) {
+    result = result.split(placeholder).join(character);
+  }
+  return result;
+}
 function normalizeChineseText(value: unknown) {
-  return toSimplified(cleanText(value).normalize("NFKC"));
+  const protectedText = protectChinesePunctuation(cleanText(value));
+  return restoreProtectedPunctuation(
+    toSimplified(protectedText.normalize("NFKC")),
+  );
 }
 function norm(value: unknown) {
   return cleanText(value).toLocaleLowerCase("zh-CN");
