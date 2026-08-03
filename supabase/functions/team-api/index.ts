@@ -23,6 +23,20 @@ function json(body: unknown, status = 200) {
 
 function cleanText(value: unknown) { return String(value ?? "").trim(); }
 function norm(value: unknown) { return cleanText(value).toLocaleLowerCase("zh-CN"); }
+function cleanSearchTags(value: unknown) {
+  const raw = Array.isArray(value) ? value : String(value ?? "").split(/[,，、;；\n]+/);
+  const tags: string[] = [];
+  const seen = new Set<string>();
+  for (const item of raw) {
+    const tag = String(item ?? "").trim();
+    if (!tag) continue;
+    if (tag.length > 40) throw new Error("每个搜索标注最多 40 个字符");
+    const key = tag.toLocaleLowerCase("zh-CN");
+    if (!seen.has(key)) { seen.add(key); tags.push(tag); }
+  }
+  if (tags.length > 20) throw new Error("每个问题最多设置 20 个搜索标注");
+  return tags;
+}
 function emailForUsername(username: string) { return `${username.toLowerCase()}@team-answer.local`; }
 function codePart(code: string, index: number) {
   const value = Number(code.split("-")[index]);
@@ -121,11 +135,13 @@ async function getData(profile: Profile) {
     service.from("problem_orders").select("*").order("sort_order"),
   ]);
   const orderMap = new Map((orders || []).map((entry) => [entry.problem_code, entry.sort_order]));
+  const tagMap = new Map((orders || []).map((entry) => [entry.problem_code, entry.search_tags || []]));
   const sorted = (items || []).sort((a, b) => (orderMap.get(a.problem_code) ?? 999999) - (orderMap.get(b.problem_code) ?? 999999) || a.answer_code.localeCompare(b.answer_code, "zh-CN", { numeric: true }));
   const withImages = await Promise.all(sorted.map(async (item) => {
-    if (!item.image_key) return { ...item, image_url: null };
+    const search_tags = tagMap.get(item.problem_code) || [];
+    if (!item.image_key) return { ...item, image_url: null, search_tags };
     const { data } = await service.storage.from("answer-images").createSignedUrl(item.image_key, 3600);
-    return { ...item, image_url: data?.signedUrl || null };
+    return { ...item, image_url: data?.signedUrl || null, search_tags };
   }));
   const payload: Record<string, unknown> = { user: profile, items: withImages };
   if (profile.role === "admin") {
@@ -200,6 +216,24 @@ async function handleJson(req: Request, profile: Profile, body: Record<string, u
     return json({ ok: true, item: await savePublished(body.answer as Answer, profile) });
   }
   requireRole(profile, ["admin"]);
+  if (action === "updateProblemTags") {
+    const problemCode = cleanText(body.problem_code);
+    const searchTags = cleanSearchTags(body.search_tags);
+    const { data: existingAnswer } = await service.from("answer_items").select("id").eq("problem_code", problemCode).is("deleted_at", null).limit(1).maybeSingle();
+    if (!existingAnswer) throw new Error("找不到问题");
+    const { data: before } = await service.from("problem_orders").select("*").eq("problem_code", problemCode).maybeSingle();
+    let saved;
+    if (before) {
+      const { data, error } = await service.from("problem_orders").update({ search_tags: searchTags, updated_at: new Date().toISOString() }).eq("problem_code", problemCode).select().single();
+      if (error) throw error; saved = data;
+    } else {
+      const { data: last } = await service.from("problem_orders").select("sort_order").order("sort_order", { ascending: false }).limit(1);
+      const { data, error } = await service.from("problem_orders").insert({ problem_code: problemCode, sort_order: (last?.[0]?.sort_order || 0) + 1, search_tags: searchTags }).select().single();
+      if (error) throw error; saved = data;
+    }
+    await audit(profile, "更新搜索标注", "problem", problemCode, before?.search_tags || [], searchTags);
+    return json({ ok: true, problem_code: problemCode, search_tags: saved.search_tags || [] });
+  }
   if (action === "bulkUpdateAnswers") {
     await bulkUpdate((body.ids as unknown[] || []).map(Number), (body.changes || {}) as Record<string, unknown>, profile);
     return json({ ok: true });
