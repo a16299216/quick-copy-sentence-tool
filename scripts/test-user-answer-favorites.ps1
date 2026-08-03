@@ -23,6 +23,7 @@ $checks = [ordered]@{
   direct_navigation = $html.Contains('state.problem=a.problem_code') -and $html.Contains('state.situation=a.situation_label') -and $html.Contains('state.platform=a.platform||null')
   draggable_favorite_rows = $html.Contains('function enableFavoriteSorting()') -and $html.Contains('row.draggable=enabled')
   drag_drop_reorders_complete_list = $html.Contains('function favoriteDrop(event,targetId)') -and $html.Contains("action:'reorderFavorites',answer_ids:order")
+  drag_actions_are_wired = $html.Contains('toggleFavorite,favoriteDragStart,favoriteDragOver,favoriteDragEnd,favoriteDrop,openFavorite')
   search_disables_reorder = $html.Contains("enabled=!state.query.trim()")
 }
 
