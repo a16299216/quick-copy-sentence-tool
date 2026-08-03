@@ -422,9 +422,25 @@ async function getData(profile: Profile) {
         .order("created_at", { ascending: false })
         .limit(150),
     ]);
-    const userNameById = new Map(
-      (users || []).map((user) => [user.id, user.display_name]),
-    );
+    const draftActorIds = [
+        ...new Set(
+          (drafts || [])
+            .flatMap((draft) => [draft.created_by, draft.reviewed_by])
+            .filter(Boolean),
+        ),
+      ],
+      { data: draftActors } = draftActorIds.length
+        ? await service
+            .from("profiles")
+            .select("id, display_name")
+            .in("id", draftActorIds)
+        : { data: [] },
+      userNameById = new Map(
+        [...(users || []), ...(draftActors || [])].map((user) => [
+          user.id,
+          user.display_name,
+        ]),
+      );
     const draftsWithNames = (drafts || []).map((draft) => ({
       ...draft,
       created_by_name: userNameById.get(draft.created_by) || "未知账号",
