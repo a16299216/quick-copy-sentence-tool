@@ -1615,11 +1615,11 @@
         $("announcementCount").textContent = unreadCount;
         $("announcementCount").classList.toggle("hidden", !unreadCount);
         const problemCountLabel = state.query.trim()
-          ? `${ps.length} 个问题 / ${matchedAnswerCount} 笔答案`
+          ? `${ps.length} 个问题 / ${matchedAnswerCount} 笔匹配`
           : `${problems(false).length} 个问题`;
         $("problemCount").textContent = problemCountLabel;
         $("problemsTab").title = state.query.trim()
-          ? `找到 ${ps.length} 个问题／${matchedAnswerCount} 笔答案`
+          ? `找到 ${ps.length} 个问题／${matchedAnswerCount} 笔匹配`
           : "完整问题列表";
         $("favoriteCount").textContent = favoriteIds.size;
         $("problemsTab").classList.toggle(
