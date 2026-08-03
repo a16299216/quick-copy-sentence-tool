@@ -13,11 +13,17 @@ $checks = [ordered]@{
   api_scopes_by_profile = $api.Contains('.eq("user_id", profile.id)')
   api_returns_favorites = $api.Contains('favorites: (favorites || []).filter')
   toggle_action_before_admin_gate = $api.IndexOf('action === "toggleFavorite"') -gt 0 -and $api.IndexOf('action === "toggleFavorite"') -lt $api.IndexOf('requireRole(profile, ["admin"]);')
+  reorder_action_before_admin_gate = $api.IndexOf('action === "reorderFavorites"') -gt 0 -and $api.IndexOf('action === "reorderFavorites"') -lt $api.IndexOf('requireRole(profile, ["admin"]);')
+  reorder_scoped_to_current_user = $api.Contains('.eq("user_id", profile.id)') -and $api.Contains('.update({ sort_order: index + 1 })')
+  reorder_requires_complete_personal_list = $api.Contains('existingIds.length !== answerIds.length') -and $api.Contains('requestedIds.has(id)')
   left_search_tabs = $html.Contains('id="problemsTab"') -and $html.Contains('id="favoritesTab"')
   answer_add_button = $html.Contains('onclick="app.toggleFavorite(${a.id})"')
   favorites_inside_search_pane = $html.Contains("state.listMode==='favorites'") -and $html.Contains('class="favorite-row')
   no_top_button_or_popup = -not $html.Contains('id="favoritesButton"') -and -not $html.Contains('function favoritesModal(')
   direct_navigation = $html.Contains('state.problem=a.problem_code') -and $html.Contains('state.situation=a.situation_label') -and $html.Contains('state.platform=a.platform||null')
+  draggable_favorite_rows = $html.Contains('function enableFavoriteSorting()') -and $html.Contains('row.draggable=enabled')
+  drag_drop_reorders_complete_list = $html.Contains('function favoriteDrop(event,targetId)') -and $html.Contains("action:'reorderFavorites',answer_ids:order")
+  search_disables_reorder = $html.Contains("enabled=!state.query.trim()")
 }
 
 $failed = @($checks.GetEnumerator() | Where-Object { -not $_.Value })

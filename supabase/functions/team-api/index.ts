@@ -237,6 +237,30 @@ async function handleJson(req: Request, profile: Profile, body: Record<string, u
     if (error) throw error;
     return json({ ok: true, favorite: true, answer_id: answerId });
   }
+  if (action === "reorderFavorites") {
+    const rawIds = Array.isArray(body.answer_ids) ? body.answer_ids : [];
+    const answerIds = rawIds.map(Number);
+    const requestedIds = new Set(answerIds);
+    if (answerIds.length > 100 || requestedIds.size !== answerIds.length || answerIds.some((id) => !Number.isInteger(id) || id <= 0)) {
+      throw new Error("常用排序资料不正确");
+    }
+    const { data: existing, error: existingError } = await service.from("user_answer_favorites")
+      .select("answer_id")
+      .eq("user_id", profile.id);
+    if (existingError) throw existingError;
+    const existingIds = (existing || []).map((entry) => Number(entry.answer_id));
+    if (existingIds.length !== answerIds.length || existingIds.some((id) => !requestedIds.has(id))) {
+      throw new Error("常用列表已更新，请刷新后再排序");
+    }
+    for (let index = 0; index < answerIds.length; index += 1) {
+      const { error } = await service.from("user_answer_favorites")
+        .update({ sort_order: index + 1 })
+        .eq("user_id", profile.id)
+        .eq("answer_id", answerIds[index]);
+      if (error) throw error;
+    }
+    return json({ ok: true, answer_ids: answerIds });
+  }
   requireRole(profile, ["admin"]);
   if (action === "updateProblemTags") {
     const problemCode = cleanText(body.problem_code);
