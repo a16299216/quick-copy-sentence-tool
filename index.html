@@ -1971,8 +1971,12 @@
                   .map((x) => {
                     const before = x.original_json || {},
                       after = x.proposed_json || {},
-                      applicant = users.get(x.created_by);
-                    return `<article class="card draft-card"><div><strong>${esc(typeLabels[x.request_type] || "申请")}｜${esc(after.problem_title || "")}</strong><small>申请人：${esc(applicant?.display_name || "未知")} · ${new Date(x.updated_at || x.created_at).toLocaleString()}</small>${x.request_reason ? `<small>申请原因：${esc(x.request_reason)}</small>` : ""}${after.member_question ? `<small>会员询问：${esc(after.member_question)}</small>` : ""}${x.request_type === "edit" ? `<div class="diff-box"><section><small>原文字</small>${esc(before.answer_text || "")}</section><section><small>新文字</small>${esc(after.answer_text || "")}</section></div>` : `<small>建议回复：${esc(after.answer_text || "未填写")}</small>`}${x.review_note ? `<small>管理员备注：${esc(x.review_note)}</small>` : ""}</div><b>${x.status === "unprocessed" ? "未处理" : "已处理"}</b>${x.status === "unprocessed" ? `<button class="primary" onclick="app.processDraftModal(${x.id})">标记已处理</button>` : ""}</article>`;
+                      applicant = users.get(x.created_by),
+                      applicantName =
+                        x.created_by_name ||
+                        applicant?.display_name ||
+                        "未知账号";
+                    return `<article class="card draft-card"><div><strong>${esc(typeLabels[x.request_type] || "申请")}｜${esc(after.problem_title || "")}</strong><small>申请人：${esc(applicantName)} · ${new Date(x.updated_at || x.created_at).toLocaleString()}</small>${x.request_reason ? `<small>申请原因：${esc(x.request_reason)}</small>` : ""}${after.member_question ? `<small>会员询问：${esc(after.member_question)}</small>` : ""}${x.request_type === "edit" ? `<div class="diff-box"><section><small>原文字</small>${esc(before.answer_text || "")}</section><section><small>新文字</small>${esc(after.answer_text || "")}</section></div>` : `<small>建议回复：${esc(after.answer_text || "未填写")}</small>`}${x.review_note ? `<small>管理员备注：${esc(x.review_note)}</small>` : ""}</div><b>${x.status === "unprocessed" ? "未处理" : "已处理"}</b>${x.status === "unprocessed" ? `<button class="primary" onclick="app.processDraftModal(${x.id})">标记已处理</button>` : ""}</article>`;
                   })
                   .join("")
               : '<div class="empty">目前没有申请记录</div>'
