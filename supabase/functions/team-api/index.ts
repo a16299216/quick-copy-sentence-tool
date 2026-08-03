@@ -130,9 +130,10 @@ async function savePublished(raw: Answer, profile: Profile, action = "发布答�
 }
 
 async function getData(profile: Profile) {
-  const [{ data: items }, { data: orders }] = await Promise.all([
+  const [{ data: items }, { data: orders }, { data: favorites }] = await Promise.all([
     service.from("answer_items").select("*").is("deleted_at", null),
     service.from("problem_orders").select("*").order("sort_order"),
+    service.from("user_answer_favorites").select("answer_id, sort_order").eq("user_id", profile.id).order("sort_order"),
   ]);
   const orderMap = new Map((orders || []).map((entry) => [entry.problem_code, entry.sort_order]));
   const tagMap = new Map((orders || []).map((entry) => [entry.problem_code, entry.search_tags || []]));
@@ -143,7 +144,12 @@ async function getData(profile: Profile) {
     const { data } = await service.storage.from("answer-images").createSignedUrl(item.image_key, 3600);
     return { ...item, image_url: data?.signedUrl || null, search_tags };
   }));
-  const payload: Record<string, unknown> = { user: profile, items: withImages };
+  const activeIds = new Set(withImages.map((item) => item.id));
+  const payload: Record<string, unknown> = {
+    user: profile,
+    items: withImages,
+    favorites: (favorites || []).filter((entry) => activeIds.has(entry.answer_id)),
+  };
   if (profile.role === "admin") {
     const [{ data: users }, { data: drafts }, { data: deleted }, { data: history }, { data: logs }] = await Promise.all([
       service.from("profiles").select("*").is("deleted_at", null).order("created_at"),
@@ -214,6 +220,22 @@ async function handleJson(req: Request, profile: Profile, body: Record<string, u
       return json({ ok: true, mode: "draft" });
     }
     return json({ ok: true, item: await savePublished(body.answer as Answer, profile) });
+  }
+  if (action === "toggleFavorite") {
+    const answerId = Number(body.answer_id);
+    if (!Number.isInteger(answerId) || answerId <= 0) throw new Error("答案资料不正确");
+    const { data: answer } = await service.from("answer_items").select("id").eq("id", answerId).is("deleted_at", null).maybeSingle();
+    if (!answer) throw new Error("找不到答案");
+    const { data: existing } = await service.from("user_answer_favorites").select("answer_id").eq("user_id", profile.id).eq("answer_id", answerId).maybeSingle();
+    if (existing) {
+      const { error } = await service.from("user_answer_favorites").delete().eq("user_id", profile.id).eq("answer_id", answerId);
+      if (error) throw error;
+      return json({ ok: true, favorite: false, answer_id: answerId });
+    }
+    const { data: last } = await service.from("user_answer_favorites").select("sort_order").eq("user_id", profile.id).order("sort_order", { ascending: false }).limit(1);
+    const { error } = await service.from("user_answer_favorites").insert({ user_id: profile.id, answer_id: answerId, sort_order: (last?.[0]?.sort_order || 0) + 1 });
+    if (error) throw error;
+    return json({ ok: true, favorite: true, answer_id: answerId });
   }
   requireRole(profile, ["admin"]);
   if (action === "updateProblemTags") {
