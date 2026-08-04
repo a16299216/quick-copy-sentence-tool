@@ -14,6 +14,9 @@ $checks = [ordered]@{
   chinese_punctuation_is_protected = $api.Contains('const protectedPunctuation') -and $api.Contains('restoreProtectedPunctuation')
   draft_can_prefill_answer_manager = $html.Contains('function openDraftInAnswerManager(id)') -and $html.Contains('draft-prefill-button')
   announcement_status_filter = $html.Contains('announcementFilter: "published"') -and $html.Contains('setAnnouncementFilter')
+  fixed_platform_order = $html.Contains('const PLATFORM_ORDER = [') -and $html.Contains('function platformSortRank(platform)')
+  answer_rows_use_platform_order = $html.Contains('platformSortRank(a.platform) - platformSortRank(b.platform)')
+  platform_chips_use_same_order = $html.Contains('.sort((a, b) => platformSortRank(a) - platformSortRank(b))')
 }
 
 $failed = @($checks.GetEnumerator() | Where-Object { -not $_.Value })

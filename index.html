@@ -1338,6 +1338,11 @@
           detectSessionInUrl: false,
         },
       });
+      const PLATFORM_ORDER = ["现金", "棋牌", "体育", "棋牌APP"];
+      function platformSortRank(platform) {
+        const index = PLATFORM_ORDER.indexOf(String(platform || "").trim());
+        return index < 0 ? PLATFORM_ORDER.length : index;
+      }
       const state = {
         data: null,
         query: "",
@@ -1516,13 +1521,14 @@
                   ? 0
                   : 1
                 : 0,
-            platformRank = (x) =>
+            selectedPlatformRank = (x) =>
               state.platform ? (x.platform === state.platform ? 0 : 1) : 0;
           return (
             exactRank(a) - exactRank(b) ||
             matchRank(a) - matchRank(b) ||
             situationRank(a) - situationRank(b) ||
-            platformRank(a) - platformRank(b) ||
+            selectedPlatformRank(a) - selectedPlatformRank(b) ||
+            platformSortRank(a.platform) - platformSortRank(b.platform) ||
             String(a.answer_code).localeCompare(
               String(b.answer_code),
               "zh-CN",
@@ -1550,7 +1556,7 @@
             : displayItems,
           platforms = [
             ...new Set(platformItems.map((i) => i.platform).filter(Boolean)),
-          ];
+          ].sort((a, b) => platformSortRank(a) - platformSortRank(b));
         if (state.platform && !platforms.includes(state.platform))
           state.platform = null;
         const orderedItems = orderAnswers(
