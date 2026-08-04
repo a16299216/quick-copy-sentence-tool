@@ -17,6 +17,10 @@ $checks = [ordered]@{
   fixed_platform_order = $html.Contains('const PLATFORM_ORDER = [') -and $html.Contains('function platformSortRank(platform)')
   answer_rows_use_platform_order = $html.Contains('platformSortRank(a.platform) - platformSortRank(b.platform)')
   platform_chips_use_same_order = $html.Contains('.sort((a, b) => platformSortRank(a) - platformSortRank(b))')
+  situation_order_has_admin_control = $html.Contains('function situationOrderModal()') -and $html.Contains('situation-order-button')
+  situation_order_calls_api = $html.Contains('action: "moveSituation"') -and $html.Contains('async function moveSituation(')
+  situation_order_is_atomic = $api.Contains('service.rpc("move_situation_and_renumber"') -and $api.Contains('if (action === "moveSituation")')
+  situation_order_renumbers_codes = $api.Contains('p_situation_label: situationLabel') -and $api.Contains('p_direction: direction')
 }
 
 $failed = @($checks.GetEnumerator() | Where-Object { -not $_.Value })

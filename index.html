@@ -819,6 +819,15 @@
       .compact-current h2 span {
         color: var(--primary);
       }
+      .compact-current .situation-order-button {
+        width: fit-content;
+        border: 1px solid #b9c8f8;
+        border-radius: 7px;
+        padding: 4px 7px;
+        color: var(--primary);
+        background: #f6f8ff;
+        font-size: 11px;
+      }
       .compact-filter-group {
         display: grid;
         gap: 6px;
@@ -1669,7 +1678,7 @@
           return;
         }
         $("choicePane").innerHTML =
-          `<div class="compact-current"><small>当前问题</small><h2><span>${esc(c.p.code)}</span>｜${esc(c.p.title)}</h2></div><div class="compact-filter-group"><small>情况（点击后整组置顶）</small><div class="chips">${c.situations.map((s) => `<button class="chip ${s === state.situation ? "active" : ""}" onclick="app.situation('${esc(s)}')">${esc(s)}</button>`).join("")}</div></div>${c.platforms.length ? `<div class="compact-filter-group"><small>平台（点击后优先排列）</small><div class="chips">${c.platforms.map((p) => `<button class="chip ${p === state.platform ? "active" : ""}" onclick="app.platform('${esc(p)}')">${esc(p)}</button>`).join("")}</div></div>` : "<div></div>"}<div class="compact-total"><b>${c.orderedItems.length}</b><small>全部答案</small></div>`;
+          `<div class="compact-current"><small>当前问题</small><h2><span>${esc(c.p.code)}</span>｜${esc(c.p.title)}</h2>${isAdmin && c.situations.length > 1 ? '<button class="situation-order-button" onclick="app.situationOrderModal()">调整情况顺序</button>' : ""}</div><div class="compact-filter-group"><small>情况（点击后整组置顶）</small><div class="chips">${c.situations.map((s) => `<button class="chip ${s === state.situation ? "active" : ""}" onclick="app.situation('${esc(s)}')">${esc(s)}</button>`).join("")}</div></div>${c.platforms.length ? `<div class="compact-filter-group"><small>平台（点击后优先排列）</small><div class="chips">${c.platforms.map((p) => `<button class="chip ${p === state.platform ? "active" : ""}" onclick="app.platform('${esc(p)}')">${esc(p)}</button>`).join("")}</div></div>` : "<div></div>"}<div class="compact-total"><b>${c.orderedItems.length}</b><small>全部答案</small></div>`;
         const exactSituation = c.exactAnswerId
             ? c.orderedItems.find(
                 (item) => Number(item.id) === Number(c.exactAnswerId),
@@ -2387,6 +2396,40 @@
           done();
         }
       }
+      function situationOrderModal() {
+        const c = current();
+        if (!c.p) return notify("请先选择问题");
+        const situations = [
+          ...new Set(c.p.items.map((item) => item.situation_label)),
+        ];
+        modal(
+          `<header><div><h2>调整情况顺序</h2><p>${esc(c.p.code)}｜${esc(c.p.title)}；移动后会自动重编情况编号与答案编号</p></div><button onclick="app.closeModal()">×</button></header><div class="order-list">${situations.map((situation, index) => {
+            const items = c.p.items.filter(
+              (item) => item.situation_label === situation,
+            );
+            return `<article class="order-row"><b>${index + 1}</b><div><strong>${esc(situation)}</strong><small>${items.length} 笔答案</small></div><button ${index === 0 ? "disabled" : ""} onclick="app.moveSituation('${esc(c.p.code)}','${esc(situation)}','up')">↑ 上移</button><button ${index === situations.length - 1 ? "disabled" : ""} onclick="app.moveSituation('${esc(c.p.code)}','${esc(situation)}','down')">↓ 下移</button></article>`;
+          }).join("")}</div><footer><button class="primary" onclick="app.closeModal()">完成</button></footer>`,
+        );
+      }
+      async function moveSituation(problemCode, situationLabel, direction) {
+        const done = beginBusy("调整情况顺序中...");
+        try {
+          await request({
+            action: "moveSituation",
+            problem_code: problemCode,
+            situation_label: situationLabel,
+            direction,
+          });
+          state.situation = null;
+          await load();
+          situationOrderModal();
+          notify("情况已移动并重新编号");
+        } catch (e) {
+          notify(e.message);
+        } finally {
+          done();
+        }
+      }
       function parseSearchTags(value) {
         return String(value || "")
           .split(/[,，、;；\n]+/)
@@ -2755,6 +2798,8 @@
           saveBulk,
           orderModal,
           move,
+          situationOrderModal,
+          moveSituation,
           saveProblemTags,
           remove,
           restore,

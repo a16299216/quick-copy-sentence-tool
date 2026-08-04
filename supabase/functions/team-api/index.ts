@@ -965,6 +965,27 @@ async function handleJson(
     );
     return json({ ok: true });
   }
+  if (action === "moveSituation") {
+    const problemCode = cleanText(body.problem_code);
+    const situationLabel = cleanText(body.situation_label);
+    const direction = cleanText(body.direction);
+    const { error } = await service.rpc("move_situation_and_renumber", {
+      p_problem_code: problemCode,
+      p_situation_label: situationLabel,
+      p_direction: direction,
+      p_actor: profile.id,
+    });
+    if (error) throw error;
+    await audit(
+      profile,
+      "调整情况顺序并重新编号",
+      "situation",
+      `${problemCode}:${situationLabel}`,
+      { direction },
+      { moved: true },
+    );
+    return json({ ok: true });
+  }
   if (action === "deleteAnswer") {
     const id = Number(body.id);
     const { data: before } = await service
