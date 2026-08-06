@@ -150,6 +150,25 @@ async function audit(
   });
 }
 
+async function normalizePlatformOrder(
+  problemCodes: Array<string | null | undefined>,
+  profile: Profile,
+) {
+  const codes = [
+    ...new Set(problemCodes.map(cleanText).filter(Boolean)),
+  ];
+  if (!codes.length) return 0;
+  const { data, error } = await service.rpc(
+    "normalize_platform_answer_order",
+    {
+      p_problem_codes: codes,
+      p_actor: profile.id,
+    },
+  );
+  if (error) throw error;
+  return Number(data) || 0;
+}
+
 function automaticNumbering(items: Answer[], draft: Answer) {
   const existingProblem = items.find(
     (item) => norm(item.problem_title) === norm(draft.problem_title),
@@ -302,8 +321,18 @@ async function savePublished(
       .select()
       .single();
     if (error) throw error;
-    await audit(profile, action, "answer", answer.id!, before, data);
-    return data;
+    await normalizePlatformOrder(
+      [before.problem_code, answer.problem_code],
+      profile,
+    );
+    const { data: finalData, error: finalError } = await service
+      .from("answer_items")
+      .select("*")
+      .eq("id", answer.id)
+      .single();
+    if (finalError) throw finalError;
+    await audit(profile, action, "answer", answer.id!, before, finalData);
+    return finalData;
   }
   const { id: _generatedId, ...insertableAnswer } = answer;
   const { data, error } = await service
@@ -328,8 +357,15 @@ async function savePublished(
     },
     { onConflict: "problem_code", ignoreDuplicates: true },
   );
-  await audit(profile, action, "answer", data.id, null, data);
-  return data;
+  await normalizePlatformOrder([answer.problem_code], profile);
+  const { data: finalData, error: finalError } = await service
+    .from("answer_items")
+    .select("*")
+    .eq("id", data.id)
+    .single();
+  if (finalError) throw finalError;
+  await audit(profile, action, "answer", data.id, null, finalData);
+  return finalData;
 }
 
 async function getData(profile: Profile) {
@@ -559,13 +595,24 @@ async function bulkUpdate(
       .eq("id", item.id);
     if (updateError) throw updateError;
   }
+  await normalizePlatformOrder(
+    [
+      ...selected.map((item) => item.problem_code),
+      ...planned.map((item) => item.problem_code),
+    ],
+    profile,
+  );
+  const { data: finalized } = await service
+    .from("answer_items")
+    .select("*")
+    .in("id", ids);
   await audit(
     profile,
     "批量整理",
     "answer_batch",
     ids.join(","),
     selected,
-    planned,
+    finalized || planned,
   );
 }
 
@@ -1030,6 +1077,7 @@ async function handleJson(
       p_actor: profile.id,
     });
     if (error) throw error;
+    await normalizePlatformOrder([problemCode], profile);
     await audit(
       profile,
       "调整情况顺序并重新编号",
@@ -1052,6 +1100,7 @@ async function handleJson(
       .update({ deleted_at: new Date().toISOString(), updated_by: profile.id })
       .eq("id", id);
     if (error) throw error;
+    await normalizePlatformOrder([before?.problem_code], profile);
     await audit(profile, "删除答案", "answer", id, before, null);
     return json({ ok: true });
   }
@@ -1073,6 +1122,7 @@ async function handleJson(
       .update({ ...numbered, deleted_at: null, updated_by: profile.id })
       .eq("id", id);
     if (error) throw error;
+    await normalizePlatformOrder([numbered.problem_code], profile);
     await audit(profile, "恢复答案", "answer", id, item, {
       ...item,
       ...numbered,

@@ -1994,9 +1994,27 @@
       ];
       function adminAnswerItems() {
         const items = state.data?.items || [];
-        return state.adminProblem === "all"
+        const filtered = state.adminProblem === "all"
           ? items
           : items.filter((i) => i.problem_code === state.adminProblem);
+        const originalIndex = new Map(items.map((item, index) => [item.id, index]));
+        return [...filtered].sort((a, b) => {
+          const aParts = String(a.answer_code || "").split("-"),
+            bParts = String(b.answer_code || "").split("-"),
+            problemRank =
+              Number(aParts[0] || 0) - Number(bParts[0] || 0),
+            situationRank =
+              Number(aParts[1] || 0) - Number(bParts[1] || 0);
+          return (
+            problemRank ||
+            situationRank ||
+            platformSortRank(a.platform) - platformSortRank(b.platform) ||
+            String(a.answer_code).localeCompare(String(b.answer_code), "zh-CN", {
+              numeric: true,
+            }) ||
+            (originalIndex.get(a.id) ?? 0) - (originalIndex.get(b.id) ?? 0)
+          );
+        });
       }
       function setAdminProblem(code) {
         state.adminProblem = code;

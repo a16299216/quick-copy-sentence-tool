@@ -3,12 +3,12 @@ $ErrorActionPreference = 'Stop'
 $html = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot '..\index.html')
 
 $checks = @(
-  @{ Name = 'keeps every answer in the selected problem'; Pattern = 'orderedItems=orderAnswers\(p\.items\)' },
-  @{ Name = 'does not auto-select the first situation'; Pattern = 'if\(state\.situation&&!situations\.includes\(state\.situation\)\)state\.situation=null' },
-  @{ Name = 'does not auto-select the first platform'; Pattern = 'if\(state\.platform&&!platforms\.includes\(state\.platform\)\)state\.platform=null' },
+  @{ Name = 'keeps every displayed answer in the selected problem'; Pattern = 'orderedItems\s*=\s*orderAnswers\(\s*displayItems' },
+  @{ Name = 'does not auto-select the first situation'; Pattern = 'if\s*\(state\.situation\s*&&\s*!situations\.includes\(state\.situation\)\)' },
+  @{ Name = 'does not auto-select the first platform'; Pattern = 'if\s*\(state\.platform\s*&&\s*!platforms\.includes\(state\.platform\)\)' },
   @{ Name = 'prioritizes the selected situation'; Pattern = 'situationRank' },
-  @{ Name = 'prioritizes the selected platform'; Pattern = 'platformRank' },
-  @{ Name = 'renders the complete answer collection'; Pattern = 'group\.items\.map\(' },
+  @{ Name = 'prioritizes the selected platform'; Pattern = 'selectedPlatformRank' },
+  @{ Name = 'renders the complete answer collection'; Pattern = 'group\.items\s*\.map\(' },
   @{ Name = 'shows the total answer count'; Pattern = 'compact-total' },
   @{ Name = 'groups answers by situation'; Pattern = 'class="answer-group' },
   @{ Name = 'uses compact answer rows'; Pattern = 'class="answer-row' },
