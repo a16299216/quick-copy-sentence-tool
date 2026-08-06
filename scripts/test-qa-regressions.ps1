@@ -23,6 +23,7 @@ $checks = [ordered]@{
   situation_order_renumbers_codes = $api.Contains('p_situation_label: situationLabel') -and $api.Contains('p_direction: direction')
   bulk_image_has_admin_control = $html.Contains('function bulkImageModal()') -and $html.Contains('app.bulkImageModal()')
   bulk_image_uploads_once = $html.Contains('async function saveBulkImage(') -and $html.Contains('action: "bulkUpdateAnswerImages"')
+  bulk_image_keeps_original_file = $html.Contains('function chooseBulkImage(file)') -and $html.Contains('state.image = file;') -and $html.Contains('onchange="app.chooseBulkImage(this.files[0])"')
   bulk_image_uses_atomic_rpc = $api.Contains('if (action === "bulkUpdateAnswerImages")') -and $api.Contains('"bulk_update_answer_images"')
   bulk_image_validates_storage_key = $api.Contains('const answerImageKeyPattern') -and $api.Contains('.list("", { search: imageKey')
 }

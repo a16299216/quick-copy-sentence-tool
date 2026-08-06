@@ -2270,6 +2270,17 @@
           notify(e.message);
         }
       }
+      function chooseBulkImage(file) {
+        if (!file || !file.type.startsWith("image/")) {
+          state.image = null;
+          return notify("请选择图片");
+        }
+        state.image = file;
+        const bulkStatus = $("bulkImageStatus");
+        if (bulkStatus)
+          bulkStatus.textContent = `${file.name} · ${Math.ceil(file.size / 1024)} KB（保持原档，不再压缩）`;
+        notify("图片已选择，将保持原档上传");
+      }
       async function saveEditor() {
         const done = beginBusy("保存中...");
         try {
@@ -2387,7 +2398,7 @@
         if (!selectedItems.length) return notify("请先选择答案");
         state.image = null;
         modal(
-          `<header><div><h2>批量更换图片</h2><p>已选择 ${selectedItems.length} 笔答案；上传一次后会统一套用同一张图片</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><div class="wide warning">将处理：${esc(codes.slice(0, 12).join("、"))}${codes.length > 12 ? ` 等 ${codes.length} 笔` : ""}<br>其中 ${currentImageCount} 笔目前已有图片</div><label class="wide">选择新图片<input class="field" type="file" accept="image/*" onchange="app.chooseImage(this.files[0])"><small id="bulkImageStatus">尚未选择图片；系统会自动压缩为最长边 1400px</small></label></div><footer><button onclick="app.closeModal()">取消</button><button class="danger" ${currentImageCount ? "" : "disabled"} onclick="app.saveBulkImage(true)">清除所选图片</button><button class="primary" onclick="app.saveBulkImage(false)">确认批量更换</button></footer>`,
+          `<header><div><h2>批量更换图片</h2><p>已选择 ${selectedItems.length} 笔答案；上传一次后会统一套用同一张图片</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><div class="wide warning">将处理：${esc(codes.slice(0, 12).join("、"))}${codes.length > 12 ? ` 等 ${codes.length} 笔` : ""}<br>其中 ${currentImageCount} 笔目前已有图片</div><label class="wide">选择新图片<input class="field" type="file" accept="image/*" onchange="app.chooseBulkImage(this.files[0])"><small id="bulkImageStatus">尚未选择图片；将保持原档直接上传，不再压缩</small></label></div><footer><button onclick="app.closeModal()">取消</button><button class="danger" ${currentImageCount ? "" : "disabled"} onclick="app.saveBulkImage(true)">清除所选图片</button><button class="primary" onclick="app.saveBulkImage(false)">确认批量更换</button></footer>`,
         );
       }
       async function saveBulkImage(clearImage) {
@@ -2843,6 +2854,7 @@
           editDraft,
           editorField,
           chooseImage,
+          chooseBulkImage,
           saveEditor,
           myDraftsModal,
           draftFilter: setDraftFilter,
