@@ -2023,7 +2023,7 @@
             allVisibleSelected =
               visibleItems.length &&
               visibleItems.every((i) => state.selected.has(i.id));
-          root.innerHTML = `<div class="toolbar"><div><h3>标准答案资料</h3><small>先选择问题分类，再查看或批量整理答案</small></div><div class="toolbar-actions"><button onclick="app.orderModal()">调整问题顺序</button><button class="primary" onclick="app.edit()">＋ 新增答案</button></div></div><div class="answer-category-bar"><button class="${state.adminProblem === "all" ? "active" : ""}" onclick="app.adminProblem('all')">全部 <b>${d.items.length}</b></button>${ps.map((p) => `<button class="${state.adminProblem === p.code ? "active" : ""}" onclick="app.adminProblem('${esc(p.code)}')">${esc(p.code)}｜${esc(p.title)} <b>${p.items.length}</b></button>`).join("")}</div>${state.selected.size ? `<div class="bulkbar"><b>已选择 ${state.selected.size} 笔</b><span>可统一修改问题分类、情况或平台</span><button class="primary" onclick="app.bulkModal()">批量整理</button><button onclick="app.clearSelection()">取消</button></div>` : ""}<div class="tablewrap"><table><thead><tr><th><input type="checkbox" ${allVisibleSelected ? "checked" : ""} ${visibleItems.length ? "" : "disabled"} onchange="app.selectAll(this.checked)"></th><th>答案编号</th><th>问题</th><th>情况</th><th>平台</th><th>标准答案</th><th>操作</th></tr></thead><tbody>${visibleItems.length ? visibleItems.map((i) => `<tr class="${state.selected.has(i.id) ? "selected" : ""}"><td><input type="checkbox" ${state.selected.has(i.id) ? "checked" : ""} onchange="app.select(${i.id},this.checked)"></td><td><b>${esc(i.answer_code)}</b></td><td>${esc(i.problem_code)}｜${esc(i.problem_title)}</td><td>${esc(i.situation_label)}</td><td>${esc(i.platform || "通用")}</td><td class="answer-cell">${esc(i.answer_text)}</td><td><div class="row-actions"><button onclick="app.edit(${i.id})">修改</button><button class="danger" onclick="app.remove(${i.id})">删除</button></div></td></tr>`).join("") : '<tr><td colspan="7"><div class="empty">这个分类目前没有答案</div></td></tr>'}</tbody></table></div>`;
+          root.innerHTML = `<div class="toolbar"><div><h3>标准答案资料</h3><small>先选择问题分类，再查看或批量整理答案</small></div><div class="toolbar-actions"><button onclick="app.orderModal()">调整问题顺序</button><button class="primary" onclick="app.edit()">＋ 新增答案</button></div></div><div class="answer-category-bar"><button class="${state.adminProblem === "all" ? "active" : ""}" onclick="app.adminProblem('all')">全部 <b>${d.items.length}</b></button>${ps.map((p) => `<button class="${state.adminProblem === p.code ? "active" : ""}" onclick="app.adminProblem('${esc(p.code)}')">${esc(p.code)}｜${esc(p.title)} <b>${p.items.length}</b></button>`).join("")}</div>${state.selected.size ? `<div class="bulkbar"><b>已选择 ${state.selected.size} 笔</b><span>可统一修改分类、情况、平台或图片</span><button class="primary" onclick="app.bulkModal()">批量整理</button><button onclick="app.bulkImageModal()">批量更换图片</button><button onclick="app.clearSelection()">取消</button></div>` : ""}<div class="tablewrap"><table><thead><tr><th><input type="checkbox" ${allVisibleSelected ? "checked" : ""} ${visibleItems.length ? "" : "disabled"} onchange="app.selectAll(this.checked)"></th><th>答案编号</th><th>问题</th><th>情况</th><th>平台</th><th>附图</th><th>标准答案</th><th>操作</th></tr></thead><tbody>${visibleItems.length ? visibleItems.map((i) => `<tr class="${state.selected.has(i.id) ? "selected" : ""}"><td><input type="checkbox" ${state.selected.has(i.id) ? "checked" : ""} onchange="app.select(${i.id},this.checked)"></td><td><b>${esc(i.answer_code)}</b></td><td>${esc(i.problem_code)}｜${esc(i.problem_title)}</td><td>${esc(i.situation_label)}</td><td>${esc(i.platform || "通用")}</td><td>${i.image_url ? `<button onclick="app.previewImage(${i.id})">查看</button>` : "无"}</td><td class="answer-cell">${esc(i.answer_text)}</td><td><div class="row-actions"><button onclick="app.edit(${i.id})">修改</button><button class="danger" onclick="app.remove(${i.id})">删除</button></div></td></tr>`).join("") : '<tr><td colspan="8"><div class="empty">这个分类目前没有答案</div></td></tr>'}</tbody></table></div>`;
         } else if (state.adminTab === "users") {
           root.innerHTML = `<div class="toolbar"><div><h3>公司账号与权限</h3><small>密码不会保存在网页中；旧密码无法读取</small></div></div><div class="user-form"><input id="newUsername" class="field" placeholder="登录账号"><input id="newDisplay" class="field" placeholder="显示名称"><input id="newPassword" class="field" type="password" placeholder="初始密码"><select id="newRole" class="field"><option value="viewer">只读使用者</option><option value="editor">编辑者</option><option value="admin">管理员</option></select><button onclick="app.randomAccount()">随机生成</button><button class="primary" onclick="app.createUser()">建立账号</button></div><div class="card-list">${(d.users || []).map((u) => `<article class="card"><div><strong>${esc(u.display_name)}</strong><small>${esc(u.username)}</small></div><select onchange="app.updateUser('${u.id}',this.value,'${u.status}')"><option value="viewer" ${u.role === "viewer" ? "selected" : ""}>只读</option><option value="editor" ${u.role === "editor" ? "selected" : ""}>编辑者</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>管理员</option></select><select onchange="app.updateUser('${u.id}','${u.role}',this.value)"><option value="active" ${u.status === "active" ? "selected" : ""}>使用中</option><option value="disabled" ${u.status === "disabled" ? "selected" : ""}>已停用</option></select><div class="row-actions"><button onclick="app.resetPassword('${u.id}')">自定新密码</button><button onclick="app.resetAndCopy('${u.id}','${esc(u.username)}')">生成新密码并复制</button><button class="danger" ${u.id === d.user.id ? 'disabled title="不能删除目前登录的账号"' : ""} onclick="app.deleteUser('${u.id}','${esc(u.username)}')">删除账号</button></div></article>`).join("")}</div>`;
         } else if (state.adminTab === "tags") {
@@ -2262,6 +2262,9 @@
         try {
           notify("正在处理图片…");
           state.image = await compress(file);
+          const bulkStatus = $("bulkImageStatus");
+          if (bulkStatus)
+            bulkStatus.textContent = `${state.image.name} · ${Math.ceil(state.image.size / 1024)} KB`;
           notify("图片已选择");
         } catch (e) {
           notify(e.message);
@@ -2371,6 +2374,57 @@
           notify("批量整理完成");
         } catch (e) {
           notify(e.message);
+        }
+      }
+      function bulkImageModal() {
+        const selectedItems = (state.data?.items || []).filter((item) =>
+            state.selected.has(item.id),
+          ),
+          currentImageCount = selectedItems.filter(
+            (item) => item.image_key,
+          ).length,
+          codes = selectedItems.map((item) => item.answer_code);
+        if (!selectedItems.length) return notify("请先选择答案");
+        state.image = null;
+        modal(
+          `<header><div><h2>批量更换图片</h2><p>已选择 ${selectedItems.length} 笔答案；上传一次后会统一套用同一张图片</p></div><button onclick="app.closeModal()">×</button></header><div class="modal-grid"><div class="wide warning">将处理：${esc(codes.slice(0, 12).join("、"))}${codes.length > 12 ? ` 等 ${codes.length} 笔` : ""}<br>其中 ${currentImageCount} 笔目前已有图片</div><label class="wide">选择新图片<input class="field" type="file" accept="image/*" onchange="app.chooseImage(this.files[0])"><small id="bulkImageStatus">尚未选择图片；系统会自动压缩为最长边 1400px</small></label></div><footer><button onclick="app.closeModal()">取消</button><button class="danger" ${currentImageCount ? "" : "disabled"} onclick="app.saveBulkImage(true)">清除所选图片</button><button class="primary" onclick="app.saveBulkImage(false)">确认批量更换</button></footer>`,
+        );
+      }
+      async function saveBulkImage(clearImage) {
+        if (
+          clearImage &&
+          !confirm(`确定清除所选 ${state.selected.size} 笔答案的图片？`)
+        )
+          return;
+        const done = beginBusy(
+          clearImage ? "正在清除图片..." : "正在上传并更换图片...",
+        );
+        try {
+          let imageKey = null;
+          if (!clearImage) {
+            if (!state.image) throw new Error("请先选择要套用的图片");
+            const form = new FormData();
+            form.set("image", state.image);
+            imageKey = (await request(null, form)).key;
+          }
+          const result = await request({
+            action: "bulkUpdateAnswerImages",
+            ids: [...state.selected],
+            image_key: imageKey,
+            clear_image: clearImage,
+          });
+          state.selected.clear();
+          closeModal();
+          await load();
+          notify(
+            clearImage
+              ? `已清除 ${result.updated_count} 笔答案图片`
+              : `已更换 ${result.updated_count} 笔答案图片`,
+          );
+        } catch (e) {
+          notify(e.message);
+        } finally {
+          done();
         }
       }
       function orderModal() {
@@ -2796,6 +2850,8 @@
           closeModal,
           bulkModal,
           saveBulk,
+          bulkImageModal,
+          saveBulkImage,
           orderModal,
           move,
           situationOrderModal,

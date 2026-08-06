@@ -21,6 +21,10 @@ $checks = [ordered]@{
   situation_order_calls_api = $html.Contains('action: "moveSituation"') -and $html.Contains('async function moveSituation(')
   situation_order_is_atomic = $api.Contains('service.rpc("move_situation_and_renumber"') -and $api.Contains('if (action === "moveSituation")')
   situation_order_renumbers_codes = $api.Contains('p_situation_label: situationLabel') -and $api.Contains('p_direction: direction')
+  bulk_image_has_admin_control = $html.Contains('function bulkImageModal()') -and $html.Contains('app.bulkImageModal()')
+  bulk_image_uploads_once = $html.Contains('async function saveBulkImage(') -and $html.Contains('action: "bulkUpdateAnswerImages"')
+  bulk_image_uses_atomic_rpc = $api.Contains('if (action === "bulkUpdateAnswerImages")') -and $api.Contains('"bulk_update_answer_images"')
+  bulk_image_validates_storage_key = $api.Contains('const answerImageKeyPattern') -and $api.Contains('.list("", { search: imageKey')
 }
 
 $failed = @($checks.GetEnumerator() | Where-Object { -not $_.Value })

@@ -108,6 +108,8 @@ function codePart(code: string, index: number) {
   const value = Number(code.split("-")[index]);
   return Number.isInteger(value) && value > 0 ? value : 0;
 }
+const answerImageKeyPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(png|jpg|webp|gif)$/i;
 
 async function currentProfile(req: Request) {
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
@@ -947,6 +949,58 @@ async function handleJson(
       profile,
     );
     return json({ ok: true });
+  }
+  if (action === "bulkUpdateAnswerImages") {
+    const ids = ((body.ids as unknown[]) || []).map(Number);
+    if (
+      ids.length < 1 ||
+      ids.length > 100 ||
+      new Set(ids).size !== ids.length ||
+      ids.some((id) => !Number.isInteger(id) || id <= 0)
+    ) {
+      throw new Error("请选择 1 至 100 笔有效答案");
+    }
+    const clearImage = body.clear_image === true;
+    const imageKey = clearImage ? null : cleanText(body.image_key);
+    if (!clearImage && !answerImageKeyPattern.test(imageKey || "")) {
+      throw new Error("请先选择要套用的图片");
+    }
+    if (imageKey) {
+      const { data: storedImages, error: storageError } = await service.storage
+        .from("answer-images")
+        .list("", { search: imageKey, limit: 10 });
+      if (storageError) throw storageError;
+      if (!(storedImages || []).some((item) => item.name === imageKey)) {
+        throw new Error("找不到刚上传的图片，请重新选择");
+      }
+    }
+    const { data: before, error: beforeError } = await service
+      .from("answer_items")
+      .select("id, answer_code, image_key, version")
+      .in("id", ids)
+      .is("deleted_at", null);
+    if (beforeError) throw beforeError;
+    if ((before || []).length !== ids.length) {
+      throw new Error("部分答案不存在或已被删除，请刷新后重试");
+    }
+    const { data: updatedCount, error } = await service.rpc(
+      "bulk_update_answer_images",
+      {
+        p_ids: ids,
+        p_image_key: imageKey,
+        p_actor: profile.id,
+      },
+    );
+    if (error) throw error;
+    await audit(
+      profile,
+      clearImage ? "批量清除图片" : "批量更换图片",
+      "answer_batch",
+      ids.join(","),
+      before || [],
+      { ids, image_key: imageKey, updated_count: Number(updatedCount) },
+    );
+    return json({ ok: true, updated_count: Number(updatedCount) });
   }
   if (action === "moveProblem") {
     const { error } = await service.rpc("move_problem_and_renumber", {
