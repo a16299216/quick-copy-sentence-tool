@@ -622,6 +622,19 @@
         background: var(--soft);
         word-break: break-all;
       }
+      .api-key-form {
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) auto;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+      .api-key-card code {
+        padding: 6px 9px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+        word-break: break-all;
+      }
       .tag-card {
         display: grid;
         grid-template-columns: minmax(180px, 1fr) minmax(260px, 2fr) auto;
@@ -1369,6 +1382,7 @@
         announcementFilter: "published",
         dragFavoriteId: null,
         suppressFavoriteClick: false,
+        currentAiApiKey: null,
       };
       const $ = (id) => document.getElementById(id);
       const esc = (v) =>
@@ -1988,6 +2002,7 @@
         ["drafts", "申请管理"],
         ["announcements", "公告管理"],
         ["users", "账号权限"],
+        ["aiApi", "AI API"],
         ["recycle", "回收站"],
         ["history", "版本历史"],
         ["audit", "操作记录"],
@@ -2044,6 +2059,9 @@
           root.innerHTML = `<div class="toolbar"><div><h3>标准答案资料</h3><small>先选择问题分类，再查看或批量整理答案</small></div><div class="toolbar-actions"><button onclick="app.orderModal()">调整问题顺序</button><button class="primary" onclick="app.edit()">＋ 新增答案</button></div></div><div class="answer-category-bar"><button class="${state.adminProblem === "all" ? "active" : ""}" onclick="app.adminProblem('all')">全部 <b>${d.items.length}</b></button>${ps.map((p) => `<button class="${state.adminProblem === p.code ? "active" : ""}" onclick="app.adminProblem('${esc(p.code)}')">${esc(p.code)}｜${esc(p.title)} <b>${p.items.length}</b></button>`).join("")}</div>${state.selected.size ? `<div class="bulkbar"><b>已选择 ${state.selected.size} 笔</b><span>可统一修改分类、情况、平台或图片</span><button class="primary" onclick="app.bulkModal()">批量整理</button><button onclick="app.bulkImageModal()">批量更换图片</button><button onclick="app.clearSelection()">取消</button></div>` : ""}<div class="tablewrap"><table><thead><tr><th><input type="checkbox" ${allVisibleSelected ? "checked" : ""} ${visibleItems.length ? "" : "disabled"} onchange="app.selectAll(this.checked)"></th><th>答案编号</th><th>问题</th><th>情况</th><th>平台</th><th>附图</th><th>标准答案</th><th>操作</th></tr></thead><tbody>${visibleItems.length ? visibleItems.map((i) => `<tr class="${state.selected.has(i.id) ? "selected" : ""}"><td><input type="checkbox" ${state.selected.has(i.id) ? "checked" : ""} onchange="app.select(${i.id},this.checked)"></td><td><b>${esc(i.answer_code)}</b></td><td>${esc(i.problem_code)}｜${esc(i.problem_title)}</td><td>${esc(i.situation_label)}</td><td>${esc(i.platform || "通用")}</td><td>${i.image_url ? `<button onclick="app.previewImage(${i.id})">查看</button>` : "无"}</td><td class="answer-cell">${esc(i.answer_text)}</td><td><div class="row-actions"><button onclick="app.edit(${i.id})">修改</button><button class="danger" onclick="app.remove(${i.id})">删除</button></div></td></tr>`).join("") : '<tr><td colspan="8"><div class="empty">这个分类目前没有答案</div></td></tr>'}</tbody></table></div>`;
         } else if (state.adminTab === "users") {
           root.innerHTML = `<div class="toolbar"><div><h3>公司账号与权限</h3><small>密码不会保存在网页中；旧密码无法读取</small></div></div><div class="user-form"><input id="newUsername" class="field" placeholder="登录账号"><input id="newDisplay" class="field" placeholder="显示名称"><input id="newPassword" class="field" type="password" placeholder="初始密码"><select id="newRole" class="field"><option value="viewer">只读使用者</option><option value="editor">编辑者</option><option value="admin">管理员</option></select><button onclick="app.randomAccount()">随机生成</button><button class="primary" onclick="app.createUser()">建立账号</button></div><div class="card-list">${(d.users || []).map((u) => `<article class="card"><div><strong>${esc(u.display_name)}</strong><small>${esc(u.username)}</small></div><select onchange="app.updateUser('${u.id}',this.value,'${u.status}')"><option value="viewer" ${u.role === "viewer" ? "selected" : ""}>只读</option><option value="editor" ${u.role === "editor" ? "selected" : ""}>编辑者</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>管理员</option></select><select onchange="app.updateUser('${u.id}','${u.role}',this.value)"><option value="active" ${u.status === "active" ? "selected" : ""}>使用中</option><option value="disabled" ${u.status === "disabled" ? "selected" : ""}>已停用</option></select><div class="row-actions"><button onclick="app.resetPassword('${u.id}')">自定新密码</button><button onclick="app.resetAndCopy('${u.id}','${esc(u.username)}')">生成新密码并复制</button><button class="danger" ${u.id === d.user.id ? 'disabled title="不能删除目前登录的账号"' : ""} onclick="app.deleteUser('${u.id}','${esc(u.username)}')">删除账号</button></div></article>`).join("")}</div>`;
+        } else if (state.adminTab === "aiApi") {
+          const apiKeys = d.ai_api_keys || [];
+          root.innerHTML = `<div class="toolbar"><div><h3>AI API Key</h3><small>提供公司 AI 只读查询标准答案；密钥明文只在建立时显示一次</small></div><div class="toolbar-actions"><a href="./AI_API.md" target="_blank" rel="noopener"><button>查看 API 文件</button></a></div></div><div class="api-key-form"><input id="newAiApiKeyName" class="field" maxlength="80" placeholder="用途名称，例如：客服 AI 正式环境"><button class="primary" onclick="app.createAiApiKey()">＋ 建立 API Key</button></div><div class="card-list">${apiKeys.length ? apiKeys.map((key) => `<article class="card api-key-card"><div><strong>${esc(key.name)}</strong><code>${esc(key.key_prefix)}••••••••</code><small>${key.status === "active" ? "使用中" : "已停用"} · 每分钟 ${key.rate_limit_per_minute} 次 · 每日 ${key.rate_limit_per_day} 次</small><small>建立：${new Date(key.created_at).toLocaleString()}${key.last_used_at ? ` · 最近使用：${new Date(key.last_used_at).toLocaleString()}` : " · 尚未使用"}</small></div>${key.status === "active" ? `<button class="danger" onclick="app.revokeAiApiKey('${key.id}','${esc(key.name)}')">停用</button>` : ""}</article>`).join("") : '<div class="empty">尚未建立 AI API Key</div>'}</div>`;
         } else if (state.adminTab === "tags") {
           const ps = problems(false);
           root.innerHTML = `<div class="toolbar"><div><h3>问题搜索标注</h3><small>标注只用于搜索，不会显示在使用页面；支持中文、单字和数字</small></div></div><div class="card-list">${ps.map((p) => `<article class="card tag-card"><div><strong>${esc(p.code)}｜${esc(p.title)}</strong><small>${p.items.length} 笔答案</small></div><input id="tagInput_${esc(p.code)}" class="field" value="${esc((p.search_tags || []).join("、"))}" placeholder="例如：你好、问候、101、888"><button class="primary" onclick="app.saveProblemTags('${esc(p.code)}')">保存标注</button></article>`).join("")}</div>`;
@@ -2096,6 +2114,7 @@
         state.editor = null;
         state.announcementEditor = null;
         state.image = null;
+        state.currentAiApiKey = null;
       }
       function distinct(key) {
         return [
@@ -2608,6 +2627,56 @@
           state.credentials.password,
         );
       }
+      function aiApiKeyModal(rawKey, metadata) {
+        state.currentAiApiKey = rawKey;
+        modal(
+          `<header><div><h2>API Key 已建立</h2><p>这串密钥关闭窗口后无法再次查看</p></div><button onclick="app.closeModal()">×</button></header><div class="credential-box"><div class="warning">请立即复制并保存在公司 AI 系统的安全凭证区。不要贴在公开文件、聊天群或程序代码中。</div><div class="credential-row"><b>用途</b><code>${esc(metadata.name)}</code></div><div class="credential-row"><b>API Key</b><code>${esc(rawKey)}</code></div><div class="credential-row"><b>Base URL</b><code>${esc(SB_URL + "/functions/v1/team-ai-api")}</code></div></div><footer><button onclick="app.closeModal()">完成</button><button class="primary" onclick="app.copyCurrentAiApiKey()">一键复制 API Key</button></footer>`,
+        );
+      }
+      async function copyCurrentAiApiKey() {
+        if (!state.currentAiApiKey) return notify("API Key 已关闭，无法再次读取");
+        try {
+          await navigator.clipboard.writeText(state.currentAiApiKey);
+          notify("API Key 已复制");
+        } catch {
+          notify("无法自动复制，请手动选择密钥文字");
+        }
+      }
+      async function createAiApiKey() {
+        const name = $("newAiApiKeyName")?.value.trim();
+        if (!name) return notify("请填写 API Key 用途名称");
+        const done = beginBusy("建立中...");
+        try {
+          const result = await request({ action: "createAiApiKey", name });
+          const rawKey = result.raw_key;
+          const metadata = result.key;
+          await load();
+          state.adminTab = "aiApi";
+          renderAdmin();
+          aiApiKeyModal(rawKey, metadata);
+          notify("API Key 已建立");
+        } catch (e) {
+          notify(e.message);
+        } finally {
+          done();
+        }
+      }
+      async function revokeAiApiKey(id, name) {
+        if (!confirm(`确定停用 API Key「${name}」？\n\n停用后使用它的 AI 会立即无法查询答案，而且不能恢复。`))
+          return;
+        const done = beginBusy("停用中...");
+        try {
+          await request({ action: "revokeAiApiKey", id });
+          await load();
+          state.adminTab = "aiApi";
+          renderAdmin();
+          notify("API Key 已停用");
+        } catch (e) {
+          notify(e.message);
+        } finally {
+          done();
+        }
+      }
       async function createUser() {
         const username = $("newUsername").value.trim(),
           display_name = $("newDisplay").value.trim(),
@@ -2892,6 +2961,9 @@
           randomAccount,
           copyCredentials,
           copyCurrentCredentials,
+          createAiApiKey,
+          copyCurrentAiApiKey,
+          revokeAiApiKey,
           createUser,
           updateUser,
           resetPassword,
