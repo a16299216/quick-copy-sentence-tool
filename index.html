@@ -1510,10 +1510,11 @@
         .answer-row {
           display: grid;
           min-height: 0;
-          grid-template-columns: 56px 76px minmax(0, 1fr) 40px;
+          grid-template-columns: 62px minmax(0, 1fr) 40px;
           grid-template-areas:
-            "code platform text image"
-            "actions actions actions actions";
+            "code platform image"
+            "text text text"
+            "actions actions actions";
           gap: 7px;
           padding: 9px 10px;
           font-size: 12px;
@@ -1530,18 +1531,18 @@
           align-items: center;
           justify-content: center;
           align-self: center;
+          justify-self: start;
+          min-width: 76px;
           padding: 5px 7px;
         }
         .answer-row-text {
           grid-area: text;
-          display: -webkit-box;
-          align-self: center;
+          display: block;
           margin: 0;
-          overflow: hidden;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 2;
-          white-space: normal;
-          line-height: 1.45;
+          overflow: visible;
+          white-space: pre-wrap;
+          line-height: 1.65;
+          word-break: break-word;
         }
         .answer-row > .image-preview-button,
         .answer-row > .answer-row-text + span {
