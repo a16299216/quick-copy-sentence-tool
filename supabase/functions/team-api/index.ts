@@ -53,6 +53,22 @@ function json(body: unknown, status = 200) {
 function cleanText(value: unknown) {
   return String(value ?? "").trim();
 }
+
+async function sha256Hex(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function randomUrlSafe(length: number) {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return btoa(String.fromCharCode(...bytes))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
 const protectedPunctuation = new Map(
   [..."，。；：！？、（）【】《》“”‘’—…"].map((character, index) => [
     character,
@@ -451,6 +467,7 @@ async function getData(profile: Profile) {
       { data: deleted },
       { data: history },
       { data: logs },
+      { data: aiApiKeys, error: aiApiKeysError },
     ] = await Promise.all([
       service
         .from("profiles")
@@ -482,7 +499,9 @@ async function getData(profile: Profile) {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(150),
+      service.rpc("list_ai_api_keys"),
     ]);
+    if (aiApiKeysError) throw aiApiKeysError;
     const draftActorIds = [
         ...new Set(
           (drafts || [])
@@ -516,6 +535,7 @@ async function getData(profile: Profile) {
       deleted_items: deleted,
       history,
       audit: logs,
+      ai_api_keys: aiApiKeys || [],
     });
   } else if (profile.role === "editor") {
     const { data: myDrafts } = await service
@@ -824,6 +844,48 @@ async function handleJson(
     return json({ ok: true, answer_ids: answerIds });
   }
   requireRole(profile, ["admin"]);
+  if (action === "createAiApiKey") {
+    const name = normalizeChineseText(body.name);
+    if (!name || name.length > 80)
+      throw new Error("请填写 1 至 80 个字符的 API Key 名称");
+    const visibleId = randomUrlSafe(8).slice(0, 10);
+    const rawKey = `qa_live_${visibleId}_${randomUrlSafe(32)}`;
+    const keyPrefix = `qa_live_${visibleId}`;
+    const keyHash = await sha256Hex(rawKey);
+    const { data, error } = await service.rpc("create_ai_api_key", {
+      p_name: name,
+      p_key_prefix: keyPrefix,
+      p_key_hash: keyHash,
+      p_created_by: profile.id,
+      p_rate_limit_per_minute: 60,
+      p_rate_limit_per_day: 5000,
+    });
+    if (error) throw error;
+    await audit(profile, "建立 AI API Key", "ai_api_key", data.id, null, {
+      ...data,
+      raw_key: "仅建立时显示，未写入数据库",
+    });
+    return json({ ok: true, key: data, raw_key: rawKey });
+  }
+  if (action === "revokeAiApiKey") {
+    const id = cleanText(body.id);
+    if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("API Key 资料不正确");
+    const before = (await service.rpc("list_ai_api_keys")).data?.find(
+      (item: { id: string }) => item.id === id,
+    );
+    if (!before) throw new Error("找不到 API Key");
+    const { data, error } = await service.rpc("revoke_ai_api_key", {
+      p_id: id,
+      p_revoked_by: profile.id,
+    });
+    if (error) throw error;
+    if (!data) throw new Error("这个 API Key 已经停用");
+    await audit(profile, "停用 AI API Key", "ai_api_key", id, before, {
+      ...before,
+      status: "revoked",
+    });
+    return json({ ok: true });
+  }
   if (action === "saveAnnouncement") {
     const id = body.id ? Number(body.id) : null;
     const title = normalizeChineseText(body.title);
